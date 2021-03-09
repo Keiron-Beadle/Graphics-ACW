@@ -10,23 +10,36 @@ namespace Labs.ACW.Objects
 {
     class Cube : Object
     {
-        public Cube(Vector3 inPosition) : this(inPosition, Vector3.Zero, Vector3.Zero) { }
-        public Cube(Vector3 inPosition, Vector3 inScale, Vector3 inRotation) : base(inPosition, inScale, inRotation) 
+        public Cube(Vector3 inPosition, Vector3 Dimensions, Vector3 RGB, int shaderProgramID) 
+            : this(inPosition, Dimensions, RGB,  Vector3.Zero, Vector3.Zero, shaderProgramID) { }
+        public Cube(Vector3 inPosition, Vector3 Dimensions, Vector3 RGB,Vector3 inScale, Vector3 inRotation, int shaderProgramID) 
+            : base(inPosition, inScale, inRotation, shaderProgramID) 
         {
             vertices = new float[] {
-                0, 0, 0, 0f, 0f, 0f,
-                0.3f, 0, 0, 0f, 0f, 0.5f,
-                0.3f, 0.3f, 0,0f, 0.5f, 0f,
-                0, 0.3f, 0, 0f, 0f, 0f,
-                0, 0, 0.3f, 0f, 0f, 0f,
-                0.3f, 0, 0.3f, 1f, 0f, 1f,
-                0.3f, 0.3f, 0.3f, 0f, 0f, 0f,
-                0, 0.3f, 0.3f, 0f, 1f, 0f,
+                -Dimensions.X, -Dimensions.Y, Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
+                Dimensions.X, -Dimensions.Y, Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
+                Dimensions.X, Dimensions.Y, Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
+                -Dimensions.X, Dimensions.Y, Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
+                Dimensions.X, -Dimensions.Y, -Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
+                Dimensions.X, Dimensions.Y, -Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
+                -Dimensions.X, Dimensions.Y, -Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
+                -Dimensions.X, -Dimensions.Y, -Dimensions.Z, RGB.X, RGB.Y, RGB.Z,
             };
 
-            indices = new int[]
+            indices = new uint[]
             {
-                0,1,2,3,4,5,6,7
+                0,1,2,
+                2,3,0,
+                1,4,5,
+                5,2,1,
+                3,2,5,
+                5,6,3,
+                7,0,3,
+                3,6,7,
+                4,7,6,
+                6,5,4,
+                0,1,4,
+                4,7,0
             };
 
             GL.GenBuffers(VBO_IDs.Length, VBO_IDs);
@@ -37,7 +50,7 @@ namespace Labs.ACW.Objects
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBO_IDs[1]);
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(indices.Length * sizeof(int)), indices, BufferUsageHint.StaticDraw);
             CheckIndicesLoad();
-            
+
         }
 
         public override void Dispose()
@@ -47,7 +60,8 @@ namespace Labs.ACW.Objects
 
         public override void Draw()
         {
-            GL.DrawArrays(PrimitiveType.TriangleFan, 0, indices.Length);
+            //GL.DrawArrays(PrimitiveType.Triangles, 0, indices.Length);
+            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
         }
     }
 }

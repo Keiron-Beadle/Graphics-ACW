@@ -13,16 +13,18 @@ namespace Labs.ACW.Objects
     {
         protected int[] VBO_IDs;
         protected float[] vertices;
-        protected int[] indices;
-        protected Matrix4 mLocalTransform;
+        protected uint[] indices;
+        protected Matrix4 mLocalTransform = Matrix4.Identity;
         protected Object parent;
+        protected int shaderID;
 
-        public Matrix4 LocalTransform { get { return mLocalTransform; } }
+        public Matrix4 LocalTransform => mLocalTransform;
 
-        public Object(Vector3 inPosition) : this(inPosition, Vector3.Zero, Vector3.Zero) { }
+        public Object(Vector3 inPosition, int shaderProgramID) : this(inPosition, Vector3.Zero, Vector3.Zero, shaderProgramID) { }
 
-        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation)
+        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID)
         {
+            shaderID = shaderProgramID;
             VBO_IDs = new int[2];
             Matrix4 rotationMatrix = CreateRotationMatrix(inRotation);
             if (parent != null)
@@ -34,10 +36,10 @@ namespace Labs.ACW.Objects
             }
             else
             {
-                mLocalTransform = Matrix4.CreateScale(inScale) *
-                    Matrix4.CreateTranslation(inPosition) *
-                    rotationMatrix;
+                mLocalTransform = Matrix4.CreateTranslation(new Vector3(0f,0,0));
             }
+            int uModelLocation = GL.GetUniformLocation(shaderID, "uModel");
+            GL.UniformMatrix4(uModelLocation, true, ref mLocalTransform);
         }
 
         public abstract void Draw();
