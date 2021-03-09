@@ -36,13 +36,17 @@ namespace Labs.ACW.Objects
             }
             else
             {
-                mLocalTransform = Matrix4.CreateTranslation(new Vector3(0f,0,0));
+                mLocalTransform = Matrix4.CreateTranslation(inPosition);
             }
-            int uModelLocation = GL.GetUniformLocation(shaderID, "uModel");
-            GL.UniformMatrix4(uModelLocation, true, ref mLocalTransform);
+            int uLocalLocation = GL.GetUniformLocation(shaderID, "uLocal");
+            GL.UniformMatrix4(uLocalLocation, true, ref mLocalTransform);
         }
 
-        public abstract void Draw();
+        public virtual void Draw()
+        {
+            int uLocalLocation = GL.GetUniformLocation(shaderID, "uLocal");
+            GL.UniformMatrix4(uLocalLocation, true, ref mLocalTransform);
+        }
 
         public abstract void Dispose();
 

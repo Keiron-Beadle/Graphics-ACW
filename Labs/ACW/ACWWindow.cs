@@ -3,6 +3,7 @@ using Labs.Utility;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 using System;
 
 namespace Labs.ACW
@@ -39,16 +40,16 @@ namespace Labs.ACW
             int vColourLocation = GL.GetAttribLocation(shader.ShaderProgramID, "vColour");
 
             //staticCam = new Camera(new Vector3(0, 0, 2), this.Width, this.Height, shader.ShaderProgramID);
-            dynCam = new Camera(new Vector3(0, 0f, 1f), this.Width, this.Height, shader.ShaderProgramID);
+            dynCam = new Camera(new Vector3(0, 0f, 2f), this.Width, this.Height, shader.ShaderProgramID);
             dynCam.Active = true;
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
             GL.BindVertexArray(VAO_IDs[0]);
-            ground = new Cube(new Vector3(0, -0.2f, 0), new Vector3(10f, 0.1f, 10f), new Vector3(0.7f, 0.1f, 0.2f), shader.ShaderProgramID);
+            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(10f, 0.01f, 10f), new Vector3(0f, 0.5f, 0.5f), shader.ShaderProgramID);
 
             GL.BindVertexArray(VAO_IDs[1]);
-            cube = new Cube(new Vector3(0f, 0f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.6f, 0.3f, 0f), shader.ShaderProgramID);
+            cube = new Cube(new Vector3(0f, 0.2f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.4f, 0.3f, 0.8f), shader.ShaderProgramID);
 
             GL.EnableVertexAttribArray(vPositionLocation);
             GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
@@ -60,10 +61,10 @@ namespace Labs.ACW
  	        base.OnLoad(e);
         }
 
-        protected override void OnKeyPress(KeyPressEventArgs e)
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            base.OnKeyPress(e);
-            dynCam.OnKeyPress(e);
+            base.OnKeyDown(e);
+            dynCam.OnKeyDown(e);
         }
 
         protected override void OnResize(EventArgs e)
@@ -91,8 +92,8 @@ namespace Labs.ACW
 
             GL.BindVertexArray(VAO_IDs[0]);
             ground.Draw();
-           // GL.BindVertexArray(VAO_IDs[1]);
-           // cube.Draw();
+            GL.BindVertexArray(VAO_IDs[1]);
+            cube.Draw();
 
             GL.BindVertexArray(0);
             SwapBuffers();

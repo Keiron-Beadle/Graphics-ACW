@@ -51,6 +51,14 @@ namespace Labs.ACW.Objects
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(indices.Length * sizeof(int)), indices, BufferUsageHint.StaticDraw);
             CheckIndicesLoad();
 
+            int vPositionLocation = GL.GetAttribLocation(shaderID, "vPosition");
+            GL.EnableVertexAttribArray(vPositionLocation);
+            GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+
+            int vColourLocation = GL.GetAttribLocation(shaderID, "vColour");
+            GL.EnableVertexAttribArray(vColourLocation);
+            GL.VertexAttribPointer(vColourLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+
         }
 
         public override void Dispose()
@@ -60,7 +68,7 @@ namespace Labs.ACW.Objects
 
         public override void Draw()
         {
-            //GL.DrawArrays(PrimitiveType.Triangles, 0, indices.Length);
+            base.Draw();
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
         }
     }

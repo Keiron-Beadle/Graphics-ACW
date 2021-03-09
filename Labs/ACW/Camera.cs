@@ -36,38 +36,46 @@ namespace Labs.ACW
 
         public Matrix4 ProjectionMatrix { get { return projMat; } }
 
-        public void OnKeyPress(KeyPressEventArgs e)
+        public void OnKeyDown(KeyboardKeyEventArgs e)
         {
             if (!Active) { return; }
             Matrix4 temp = Matrix4.Identity;
 
-            if (e.KeyChar == 'q')
+            if (e.Key == Key.Q)
             {
                 temp *= Matrix4.CreateRotationY(-rotSpd);
             }
-            if (e.KeyChar == 'e')
+            if (e.Key == Key.E)
             {
                 temp *= Matrix4.CreateRotationY(rotSpd);
             }
-            if (e.KeyChar == 'w')
+            if (e.Key == Key.W)
             {
                 temp *= Matrix4.CreateTranslation(0.0f, 0.0f, moveSpd);
             }
-            if (e.KeyChar == 's')
+            if (e.Key == Key.S)
             {
                 temp *= Matrix4.CreateTranslation(0.0f, 0.0f, -moveSpd);
             }
-            if (e.KeyChar == 'a')
+            if (e.Key == Key.A)
             {
                 temp *= Matrix4.CreateTranslation(moveSpd, 0.0f, 0.0f);
             }
-            if (e.KeyChar == 'd')
+            if (e.Key == Key.D)
             {
                 temp *= Matrix4.CreateTranslation(-moveSpd, 0.0f, 0.0f);
             }
+            if (e.Key == Key.Space)
+            {
+                temp *= Matrix4.CreateTranslation(0.0f, -moveSpd, 0.0f);
+            }
+            if (e.Key == Key.ShiftLeft)
+            {
+                temp *= Matrix4.CreateTranslation(0.0f, moveSpd, 0.0f);
+            }
             viewMat *= temp;
             GL.UniformMatrix4(uViewLocation, true, ref viewMat);
-            eyePosition = new Vector4(viewMat.ExtractTranslation(),1);
+            eyePosition = new Vector4(viewMat.ExtractTranslation(), 1);
             //int eyeLocation = GL.GetUniformLocation(shaderProgramID, "uEyePosition");
             //GL.Uniform4(eyeLocation, eyePosition);
         }
