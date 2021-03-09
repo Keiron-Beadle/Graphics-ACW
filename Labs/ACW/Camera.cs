@@ -19,22 +19,30 @@ namespace Labs.ACW
         public bool Active { get; set; }
         private const float moveSpd = 0.05f;
         private const float rotSpd = 0.025f;
+        public Matrix4 ProjectionMatrix { get { return projMat; } }
 
         public Camera(Vector3 inPosition, float clientWidth, float clientHeight, int shaderProgramID)
+        : this (inPosition, Vector3.Zero,clientWidth, clientHeight, shaderProgramID) { }
+
+        public Camera(Vector3 inPosition, Vector3 pLookAt, float clientWidth, float clientHeight, int shaderProgramID)
         {
             this.shaderProgramID = shaderProgramID;
             //eyePosition = new Vector4(inPosition,1);
-            Vector3 lookAt = new Vector3(0, 0, 0);
+            Vector3 lookAt = pLookAt;
             projMat = Matrix4.CreatePerspectiveFieldOfView(1, clientWidth / clientHeight, 0.01f, 50f);
             viewMat = Matrix4.LookAt(inPosition, lookAt, Vector3.UnitY);
             //viewMat = Matrix4.Identity;
             uViewLocation = GL.GetUniformLocation(shaderProgramID, "uView");
-            GL.UniformMatrix4(uViewLocation, true, ref viewMat);
+            //GL.UniformMatrix4(uViewLocation, true, ref viewMat);
             uProjectionLocation = GL.GetUniformLocation(shaderProgramID, "uProjection");
             GL.UniformMatrix4(uProjectionLocation, true, ref projMat);
         }
 
-        public Matrix4 ProjectionMatrix { get { return projMat; } }
+        public void Update()
+        {
+            if (!Active) { return; }
+            GL.UniformMatrix4(uViewLocation, true, ref viewMat);
+        }
 
         public void OnKeyDown(KeyboardKeyEventArgs e)
         {

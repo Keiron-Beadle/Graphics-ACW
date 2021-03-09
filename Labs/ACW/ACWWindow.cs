@@ -5,6 +5,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Labs.ACW
 {
@@ -13,7 +14,8 @@ namespace Labs.ACW
         private Camera staticCam, dynCam;
         private int[] VAO_IDs = new int[2];
         private ShaderUtility shader;
-        private Cube cube, ground; 
+        private Cube cube, ground;
+        List<Objects.Object> entities = new List<Objects.Object>();
 
         public ACWWindow()
             : base(
@@ -39,7 +41,7 @@ namespace Labs.ACW
             int vPositionLocation = GL.GetAttribLocation(shader.ShaderProgramID, "vPosition");
             int vColourLocation = GL.GetAttribLocation(shader.ShaderProgramID, "vColour");
 
-            //staticCam = new Camera(new Vector3(0, 0, 2), this.Width, this.Height, shader.ShaderProgramID);
+            staticCam = new Camera(new Vector3(5f, 6f, -3f), new Vector3(0,0,0), this.Width, this.Height, shader.ShaderProgramID);
             dynCam = new Camera(new Vector3(0, 0f, 2f), this.Width, this.Height, shader.ShaderProgramID);
             dynCam.Active = true;
 
@@ -47,9 +49,11 @@ namespace Labs.ACW
 
             GL.BindVertexArray(VAO_IDs[0]);
             ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(10f, 0.01f, 10f), new Vector3(0f, 0.5f, 0.5f), shader.ShaderProgramID);
+            entities.Add(ground);
 
             GL.BindVertexArray(VAO_IDs[1]);
             cube = new Cube(new Vector3(0f, 0.2f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.4f, 0.3f, 0.8f), shader.ShaderProgramID);
+            entities.Add(cube);
 
             GL.EnableVertexAttribArray(vPositionLocation);
             GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
@@ -65,6 +69,11 @@ namespace Labs.ACW
         {
             base.OnKeyDown(e);
             dynCam.OnKeyDown(e);
+            if (e.Key == Key.O)
+            {
+                if (dynCam.Active) { dynCam.Active = false; staticCam.Active = true; }
+                else { dynCam.Active = true; staticCam.Active = false; }
+            }
         }
 
         protected override void OnResize(EventArgs e)
@@ -82,6 +91,9 @@ namespace Labs.ACW
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
  	        base.OnUpdateFrame(e);
+
+            dynCam.Update();
+            staticCam.Update();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -90,10 +102,11 @@ namespace Labs.ACW
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            GL.BindVertexArray(VAO_IDs[0]);
-            ground.Draw();
-            GL.BindVertexArray(VAO_IDs[1]);
-            cube.Draw();
+            for (int i = 0; i < entities.Count; i++)
+            {
+                GL.BindVertexArray(VAO_IDs[i]);
+                entities[i].Draw();
+            }
 
             GL.BindVertexArray(0);
             SwapBuffers();
