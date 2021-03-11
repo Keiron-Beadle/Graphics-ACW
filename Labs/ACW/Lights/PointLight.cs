@@ -21,9 +21,9 @@ namespace Labs.ACW.Lights
             int uLightPosition = GL.GetUniformLocation(shaderProgramID, "uLight.Position");
             GL.Uniform4(uLightPosition, lightPos);
 
-            Vector3 ambient = new Vector3(0.0215f, 0.1745f, 0.0215f);
-            Vector3 diffuse = new Vector3(0.07568f, 0.61424f, 0.07568f);
-            Vector3 specular = new Vector3(0.633f, 0.727811f, 0.633f);
+            Vector3 ambient = new Vector3(0.05f, 0.05f, 0.05f);
+            Vector3 diffuse = new Vector3(0.3f, 0.3f, 0.3f);
+            Vector3 specular = new Vector3(0.3f, 0.3f, 0.3f);
             int uAmbientPosition = GL.GetUniformLocation(shaderProgramID, "uLight.AmbientLight");
             int uDiffusePosition = GL.GetUniformLocation(shaderProgramID, "uLight.DiffuseLight");
             int uSpecularPosition = GL.GetUniformLocation(shaderProgramID, "uLight.SpecularLight");

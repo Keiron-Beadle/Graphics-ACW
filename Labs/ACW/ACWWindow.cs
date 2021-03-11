@@ -34,32 +34,56 @@ namespace Labs.ACW
         {
         }
 
+        public struct Material
+        {
+            public Vector3 AmbientRef;
+            public Vector3 DiffuseRef;
+            public Vector3 SpecRef;
+            public float Shininess;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             GL.ClearColor(0.1f,0.1f,0.1f,1.0f);
             GL.Enable(EnableCap.DepthTest);
             shader = new ShaderUtility(@"ACW/Shaders/vShader.vert", @"ACW/Shaders/fShader.frag");
             GL.UseProgram(shader.ShaderProgramID);
-            int vPositionLocation = GL.GetAttribLocation(shader.ShaderProgramID, "vPosition");
-            int vColourLocation = GL.GetAttribLocation(shader.ShaderProgramID, "vColour");
 
-            staticCam = new Camera(new Vector3(5f, 6f, -3f), new Vector3(0,0,0), this.Width, this.Height, shader.ShaderProgramID);
+            staticCam = new Camera(new Vector3(4f, 5f, 6f), new Vector3(0,0,0), this.Width, this.Height, shader.ShaderProgramID);
             dynCam = new Camera(new Vector3(0, 0f, 2f), this.Width, this.Height, shader.ShaderProgramID);
             dynCam.Active = true;
 
-            lights.Add(new PointLight(new Vector4(0, 1f, 0, 1), shader.ShaderProgramID));
+            lights.Add(new PointLight(new Vector4(0, 0.4f, 1f, 1), shader.ShaderProgramID));
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
-            ground = new Cube(new Vector3(0f, -0.06f, 0f), new Vector3(10f, 0.01f, 10f), new Vector3(0f, 0.5f, 0.5f), shader.ShaderProgramID, VAO_IDs[0]);
+            Material groundMat = MakeMaterial(new Vector3(0.25f, 0.20725f, 0.20725f), 
+                new Vector3(1, 0.829f, 0.829f), 
+                new Vector3(0.296648f, 0.296648f, 0.296648f), 0.088f);
+            ground = new Cube(new Vector3(0f, -0.06f, 0f), new Vector3(10f, 0.01f, 10f), new Vector3(0f, 0.5f, 0.5f), shader.ShaderProgramID, VAO_IDs[0], groundMat);
             entities.Add(ground);
 
-            cube = new Cube(new Vector3(0f, 0.1f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.4f, 0.3f, 0.8f), shader.ShaderProgramID, VAO_IDs[1]);
+
+            Material cubeMat = MakeMaterial(new Vector3(0, 0.1f, 0.06f),
+                new Vector3(0,0.50980392f, 0.50980392f),
+                new Vector3(0.50196078f, 0.50196078f, 0.50196078f), 0.25f);
+            cube = new Cube(new Vector3(0f, 0.1f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.4f, 0.3f, 0.8f), shader.ShaderProgramID, VAO_IDs[1], cubeMat);
             entities.Add(cube);
 
             GL.BindVertexArray(0);
 
  	        base.OnLoad(e);
+        }
+
+        private Material MakeMaterial(Vector3 pAmbientRef, Vector3 pDiffuseRef, Vector3 pSpecRef, float pShininess)
+        {
+            return new Material()
+            {
+                AmbientRef = pAmbientRef,
+                DiffuseRef = pDiffuseRef,
+                SpecRef = pSpecRef,
+                Shininess = pShininess
+            };
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)

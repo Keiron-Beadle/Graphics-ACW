@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using static Labs.ACW.ACWWindow;
 
 namespace Labs.ACW.Objects
 {
@@ -18,13 +19,16 @@ namespace Labs.ACW.Objects
         protected Matrix4 mLocalTransform = Matrix4.Identity;
         protected Object parent;
         protected int shaderID;
+        protected Material thisMaterial;
 
         public Matrix4 LocalTransform => mLocalTransform;
 
-        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID) : this(inPosition, Vector3.Zero, Vector3.Zero, shaderProgramID, vao_ID) { }
+        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : this(inPosition, Vector3.Zero, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
 
-        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID)
+        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial)
         {
+            thisMaterial = pMaterial;
             this.VAO_ID = vao_ID;
             shaderID = shaderProgramID;
             VBO_IDs = new int[2];

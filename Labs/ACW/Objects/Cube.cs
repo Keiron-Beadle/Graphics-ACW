@@ -5,15 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Labs.ACW.ACWWindow;
 
 namespace Labs.ACW.Objects
 {
     class Cube : Object
     {
-        public Cube(Vector3 inPosition, Vector3 Dimensions, Vector3 RGB, int shaderProgramID, int vao_ID) 
-            : this(inPosition, Dimensions, RGB,  Vector3.Zero, Vector3.Zero, shaderProgramID, vao_ID) { }
-        public Cube(Vector3 inPosition, Vector3 D, Vector3 RGB,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID) 
-            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID) 
+        public Cube(Vector3 inPosition, Vector3 Dimensions, Vector3 RGB, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : this(inPosition, Dimensions, RGB,  Vector3.Zero, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
+        public Cube(Vector3 inPosition, Vector3 D, Vector3 RGB,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial) 
         {
             float x = D.X, y = D.Y, z = D.Z;
             vertices = new float[] {
@@ -104,20 +105,15 @@ namespace Labs.ACW.Objects
 
         protected override void UpdateUMaterial()
         {
-            Vector3 ambientRef = new Vector3(0.3f, 0.3f, 0.3f);
-            Vector3 diffuseRef = new Vector3(0.1f, 0.1f, 0.1f);
-            Vector3 specRef = new Vector3(0.3f, 0.5f, 0.7f);
-            float shininess = 0.6f;
-
             int uAmbientRefPosition = GL.GetUniformLocation(shaderID, "uMaterial.AmbientReflectivity");
             int uDiffuseRefPosition = GL.GetUniformLocation(shaderID, "uMaterial.DiffuseReflectivity");
             int uSpecRefPosition = GL.GetUniformLocation(shaderID, "uMaterial.SpecularReflectivity");
             int uShininessPosition = GL.GetUniformLocation(shaderID, "uMaterial.Shininess");
 
-            GL.Uniform3(uAmbientRefPosition, ambientRef);
-            GL.Uniform3(uDiffuseRefPosition, diffuseRef);
-            GL.Uniform3(uSpecRefPosition, specRef);
-            GL.Uniform1(uShininessPosition, shininess);
+            GL.Uniform3(uAmbientRefPosition, thisMaterial.AmbientRef);
+            GL.Uniform3(uDiffuseRefPosition, thisMaterial.DiffuseRef);
+            GL.Uniform3(uSpecRefPosition, thisMaterial.SpecRef);
+            GL.Uniform1(uShininessPosition, thisMaterial.Shininess);
         }
     }
 }

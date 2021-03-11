@@ -33,7 +33,7 @@ void main()
 
 	vec4 reflectedVector = reflect(-lightDir, oNormal);
 
-	float specularFactor = pow(max(dot(reflectedVector, eyeDir), 0.0), uMaterial.Shininess);
+	float specularFactor = pow(max(dot(reflectedVector, eyeDir), 0.0), uMaterial.Shininess * 128.0);
 	float diffuseFactor = max(dot(oNormal,lightDir), 0);
 	float ambientFactor = 0.05;
 
