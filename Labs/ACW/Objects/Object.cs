@@ -11,6 +11,7 @@ namespace Labs.ACW.Objects
 {
     abstract class Object
     {
+        protected int VAO_ID;
         protected int[] VBO_IDs;
         protected float[] vertices;
         protected uint[] indices;
@@ -20,10 +21,11 @@ namespace Labs.ACW.Objects
 
         public Matrix4 LocalTransform => mLocalTransform;
 
-        public Object(Vector3 inPosition, int shaderProgramID) : this(inPosition, Vector3.Zero, Vector3.Zero, shaderProgramID) { }
+        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID) : this(inPosition, Vector3.Zero, Vector3.Zero, shaderProgramID, vao_ID) { }
 
-        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID)
+        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID)
         {
+            this.VAO_ID = vao_ID;
             shaderID = shaderProgramID;
             VBO_IDs = new int[2];
             Matrix4 rotationMatrix = CreateRotationMatrix(inRotation);

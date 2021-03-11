@@ -5,12 +5,14 @@ uniform mat4 uView;
 uniform mat4 uProjection;
 
 in vec3 vPosition;
-in vec3 vColour;
+in vec3 vNormal;
 
-out vec4 oColour;
+out vec4 oNormal;
+out vec4 oSurfacePosition;
 
 void main()
 {
 	gl_Position = vec4(vPosition,1) * uLocal * uView * uProjection;
-	oColour = vec4(vColour,1);
+	oSurfacePosition = vec4(vPosition, 1) * uLocal * uView;
+	oNormal = vec4(normalize(vNormal * mat3(transpose(uLocal * uView))), 1);
 }

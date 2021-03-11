@@ -47,18 +47,17 @@ namespace Labs.ACW
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
-            GL.BindVertexArray(VAO_IDs[0]);
-            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(10f, 0.01f, 10f), new Vector3(0f, 0.5f, 0.5f), shader.ShaderProgramID);
-            entities.Add(ground);
+            //GL.BindVertexArray(VAO_IDs[0]);
+            //ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(10f, 0.01f, 10f), new Vector3(0f, 0.5f, 0.5f), shader.ShaderProgramID);
+            //entities.Add(ground);
 
-            GL.BindVertexArray(VAO_IDs[1]);
-            cube = new Cube(new Vector3(0f, 0.2f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.4f, 0.3f, 0.8f), shader.ShaderProgramID);
+            cube = new Cube(new Vector3(0f, 0.2f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.4f, 0.3f, 0.8f), shader.ShaderProgramID, VAO_IDs[1]);
             entities.Add(cube);
 
-            GL.EnableVertexAttribArray(vPositionLocation);
-            GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(vColourLocation);
-            GL.VertexAttribPointer(vColourLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+            //GL.EnableVertexAttribArray(vPositionLocation);
+            //GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+            //GL.EnableVertexAttribArray(vColourLocation);
+            //GL.VertexAttribPointer(vColourLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
 
             GL.BindVertexArray(0);
 
@@ -118,7 +117,7 @@ namespace Labs.ACW
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
             cube.Dispose();
-            ground.Dispose();
+            //ground.Dispose();
             GL.DeleteVertexArrays(VAO_IDs.Length, VAO_IDs);
             shader.Delete();
             base.OnUnload(e);
