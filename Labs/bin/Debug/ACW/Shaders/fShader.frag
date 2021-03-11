@@ -14,7 +14,7 @@ struct LightProperties {
 	vec3 SpecularLight;
 };
 
-uniform LightProperties uLight;
+uniform LightProperties uLight[3];
 
 struct MaterialProperties {
 	vec3 AmbientReflectivity;
@@ -27,17 +27,16 @@ uniform MaterialProperties uMaterial;
 
 void main()
 {
-	vec4 lightDir = normalize(uLight.Position - oSurfacePosition);
-
 	vec4 eyeDir = normalize(uEyePosition - oSurfacePosition);
-
-	vec4 reflectedVector = reflect(-lightDir, oNormal);
-
-	float specularFactor = pow(max(dot(reflectedVector, eyeDir), 0.0), uMaterial.Shininess * 128.0);
-	float diffuseFactor = max(dot(oNormal,lightDir), 0);
-	float ambientFactor = 0.05;
-
-	FragColour = vec4(uLight.AmbientLight * uMaterial.AmbientReflectivity +
-				uLight.DiffuseLight * uMaterial.DiffuseReflectivity * diffuseFactor +
-				uLight.SpecularLight * uMaterial.SpecularReflectivity * specularFactor, 1);
+	for (int i = 0; i < 3; ++i)
+	{
+		vec4 lightDir = normalize(uLight[i].Position - oSurfacePosition);
+		vec4 reflectedVector = reflect(-lightDir, oNormal);
+		float specularFactor = pow(max(dot(reflectedVector, eyeDir), 0.0), uMaterial.Shininess * 128.0);
+		float diffuseFactor = max(dot(oNormal,lightDir), 0);
+		float ambientFactor = 0.05;
+		FragColour = FragColour + vec4(uLight[i].AmbientLight * uMaterial.AmbientReflectivity +
+				uLight[i].DiffuseLight * uMaterial.DiffuseReflectivity * diffuseFactor +
+				uLight[i].SpecularLight * uMaterial.SpecularReflectivity * specularFactor, 1);
+	}
 }

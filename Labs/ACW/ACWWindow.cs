@@ -42,6 +42,14 @@ namespace Labs.ACW
             public float Shininess;
         }
 
+        public struct LightProperties
+        {
+            public Vector4 Position;
+            public Vector3 AmbientLight;
+            public Vector3 DiffuseLight;
+            public Vector3 SpecularLight;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             GL.ClearColor(0.1f,0.1f,0.1f,1.0f);
@@ -53,7 +61,12 @@ namespace Labs.ACW
             dynCam = new Camera(new Vector3(0, 0f, 2f), this.Width, this.Height, shader.ShaderProgramID);
             dynCam.Active = true;
 
-            lights.Add(new PointLight(new Vector4(0, 0.4f, 1f, 1), shader.ShaderProgramID));
+            LightProperties p1 = MakeLightPropertes(new Vector4(0, 0.5f, 0, 1), new Vector3(0,0.1f,0), new Vector3(0, 0.63f, 0), new Vector3(0,0.1f,0));
+            LightProperties p2 = MakeLightPropertes(new Vector4(0.2f, 0.2f, -0.2f, 1), new Vector3(0.1f,0,0), new Vector3(0.63f, 0,0), new Vector3(0.1f,0,0));
+            LightProperties p3 = MakeLightPropertes(new Vector4(-0.2f, 0.2f, 0.2f, 1), new Vector3(0,0, 0.1f), new Vector3(0,0, 0.63f), new Vector3(0,0,0.1f));
+            lights.Add(new PointLight(p1, shader.ShaderProgramID));
+            lights.Add(new PointLight(p2, shader.ShaderProgramID));
+            lights.Add(new PointLight(p3, shader.ShaderProgramID));
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
@@ -73,6 +86,17 @@ namespace Labs.ACW
             GL.BindVertexArray(0);
 
  	        base.OnLoad(e);
+        }
+
+        private LightProperties MakeLightPropertes(Vector4 vector4, Vector3 vector31, Vector3 vector32, Vector3 vector33)
+        {
+            return new LightProperties
+            {
+                Position = vector4,
+                AmbientLight = vector31,
+                DiffuseLight = vector32,
+                SpecularLight = vector33
+            };
         }
 
         private Material MakeMaterial(Vector3 pAmbientRef, Vector3 pDiffuseRef, Vector3 pSpecRef, float pShininess)
@@ -117,7 +141,7 @@ namespace Labs.ACW
             staticCam.Update();
             if (dynCam.Active) { ActiveCam = dynCam; }
             else { ActiveCam = staticCam; }
-            for (int i = 0; i < lights.Count; i++) { lights[i].Update(ActiveCam); }
+            for (int i = 0; i < lights.Count; i++) { lights[i].Update(ActiveCam, i); }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

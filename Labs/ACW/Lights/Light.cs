@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Labs.ACW.ACWWindow;
 
 namespace Labs.ACW.Lights
 {
@@ -12,19 +13,20 @@ namespace Labs.ACW.Lights
     {
         protected int shaderProgramID;
         protected Vector4 lightPosition;
+        protected LightProperties properties;
 
-        public Light(Vector4 pPosition, int pShaderID)
+        public Light(LightProperties pProperties, int pShaderID)
         {
-            lightPosition = pPosition;
+            properties = pProperties;
             shaderProgramID = pShaderID;
         }
         
-        public void Update(Camera pActiveCam)
+        public void Update(Camera pActiveCam, int pIndex)
         {
-            UpdateULight(pActiveCam.ViewMatrix);
+            UpdateULight(pActiveCam.ViewMatrix, pIndex);
         }
 
-        protected abstract void UpdateULight(Matrix4 pViewMat);
+        protected abstract void UpdateULight(Matrix4 pViewMat, int pIndex);
 
     }
 }
