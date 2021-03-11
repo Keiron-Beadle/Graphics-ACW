@@ -49,6 +49,8 @@
   <ItemGroup>
     <Compile Include="ACW\ACWWindow.cs" />
     <Compile Include="ACW\Camera.cs" />
+    <Compile Include="ACW\Lights\Light.cs" />
+    <Compile Include="ACW\Lights\PointLight.cs" />
     <Compile Include="ACW\Objects\Cube.cs" />
     <Compile Include="ACW\Objects\Object.cs" />
     <Compile Include="Challenge\ChallengeWindow.cs" />

@@ -96,5 +96,28 @@ namespace Labs.ACW.Objects
             GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
         }
+
+        public override void Update()
+        {
+            UpdateUMaterial();
+        }
+
+        protected override void UpdateUMaterial()
+        {
+            Vector3 ambientRef = new Vector3(0.3f, 0.3f, 0.3f);
+            Vector3 diffuseRef = new Vector3(0.1f, 0.1f, 0.1f);
+            Vector3 specRef = new Vector3(0.3f, 0.5f, 0.7f);
+            float shininess = 0.6f;
+
+            int uAmbientRefPosition = GL.GetUniformLocation(shaderID, "uMaterial.AmbientReflectivity");
+            int uDiffuseRefPosition = GL.GetUniformLocation(shaderID, "uMaterial.DiffuseReflectivity");
+            int uSpecRefPosition = GL.GetUniformLocation(shaderID, "uMaterial.SpecularReflectivity");
+            int uShininessPosition = GL.GetUniformLocation(shaderID, "uMaterial.Shininess");
+
+            GL.Uniform3(uAmbientRefPosition, ambientRef);
+            GL.Uniform3(uDiffuseRefPosition, diffuseRef);
+            GL.Uniform3(uSpecRefPosition, specRef);
+            GL.Uniform1(uShininessPosition, shininess);
+        }
     }
 }

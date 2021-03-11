@@ -1,4 +1,5 @@
-﻿using Labs.ACW.Objects;
+﻿using Labs.ACW.Lights;
+using Labs.ACW.Objects;
 using Labs.Utility;
 using OpenTK;
 using OpenTK.Graphics;
@@ -11,11 +12,12 @@ namespace Labs.ACW
 {
     public class ACWWindow : GameWindow
     {
-        private Camera staticCam, dynCam;
+        private Camera staticCam, dynCam, ActiveCam;
         private int[] VAO_IDs = new int[2];
         private ShaderUtility shader;
         private Cube cube, ground;
         List<Objects.Object> entities = new List<Objects.Object>();
+        List<Lights.Light> lights = new List<Lights.Light>();
 
         public ACWWindow()
             : base(
@@ -44,6 +46,8 @@ namespace Labs.ACW
             staticCam = new Camera(new Vector3(5f, 6f, -3f), new Vector3(0,0,0), this.Width, this.Height, shader.ShaderProgramID);
             dynCam = new Camera(new Vector3(0, 0f, 2f), this.Width, this.Height, shader.ShaderProgramID);
             dynCam.Active = true;
+
+            lights.Add(new PointLight(new Vector4(0, 1f, 0, 1), shader.ShaderProgramID));
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
@@ -87,6 +91,9 @@ namespace Labs.ACW
 
             dynCam.Update();
             staticCam.Update();
+            if (dynCam.Active) { ActiveCam = dynCam; }
+            else { ActiveCam = staticCam; }
+            for (int i = 0; i < lights.Count; i++) { lights[i].Update(ActiveCam); }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -98,6 +105,7 @@ namespace Labs.ACW
             for (int i = 0; i < entities.Count; i++)
             {
                 GL.BindVertexArray(VAO_IDs[i]);
+                entities[i].Update();
                 entities[i].Draw();
             }
 

@@ -44,11 +44,15 @@ namespace Labs.ACW.Objects
             GL.UniformMatrix4(uLocalLocation, true, ref mLocalTransform);
         }
 
+        protected abstract void UpdateUMaterial();
+
         public virtual void Draw()
         {
             int uLocalLocation = GL.GetUniformLocation(shaderID, "uLocal");
             GL.UniformMatrix4(uLocalLocation, true, ref mLocalTransform);
         }
+
+        public abstract void Update();
 
         public abstract void Dispose();
 
