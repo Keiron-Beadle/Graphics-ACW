@@ -36,6 +36,8 @@ namespace Labs.ACW
             //GL.UniformMatrix4(uViewLocation, true, ref viewMat);
             uProjectionLocation = GL.GetUniformLocation(shaderProgramID, "uProjection");
             GL.UniformMatrix4(uProjectionLocation, true, ref projMat);
+            UpdateULightPosition();
+            UpdateUEyeLocation();
         }
 
         public void Update()
@@ -83,9 +85,22 @@ namespace Labs.ACW
             }
             viewMat *= temp;
             GL.UniformMatrix4(uViewLocation, true, ref viewMat);
+            UpdateULightPosition();
+            UpdateUEyeLocation();
+        }
+
+        private void UpdateUEyeLocation()
+        {
             eyePosition = new Vector4(viewMat.ExtractTranslation(), 1);
-            //int eyeLocation = GL.GetUniformLocation(shaderProgramID, "uEyePosition");
-            //GL.Uniform4(eyeLocation, eyePosition);
+            int eyeLocation = GL.GetUniformLocation(shaderProgramID, "uEyePosition");
+            GL.Uniform4(eyeLocation, eyePosition);
+        }
+
+        private void UpdateULightPosition()
+        {
+            Vector4 lightPos = Vector4.Transform(new Vector4(-1f, 1.2f, 1f, 1), viewMat);
+            int uLightPosition = GL.GetUniformLocation(shaderProgramID, "uLightPosition");
+            GL.Uniform4(uLightPosition, lightPos);
         }
     }
 }

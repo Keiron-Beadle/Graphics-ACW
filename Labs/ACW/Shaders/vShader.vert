@@ -14,5 +14,5 @@ void main()
 {
 	gl_Position = vec4(vPosition,1) * uLocal * uView * uProjection;
 	oSurfacePosition = vec4(vPosition, 1) * uLocal * uView;
-	oNormal = vec4(normalize(vNormal * mat3(transpose(uLocal * uView))), 1);
+	oNormal = vec4(normalize(vNormal * mat3(transpose(inverse(uLocal * uView)))), 1);
 }
