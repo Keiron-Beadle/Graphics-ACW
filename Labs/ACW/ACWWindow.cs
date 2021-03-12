@@ -17,7 +17,7 @@ namespace Labs.ACW
         private ShaderUtility shader;
         private Cube cube, ground;
         List<Objects.Object> entities = new List<Objects.Object>();
-        List<Lights.Light> lights = new List<Lights.Light>();
+        List<Light> lights = new List<Light>();
 
         public ACWWindow()
             : base(
@@ -52,7 +52,7 @@ namespace Labs.ACW
 
         protected override void OnLoad(EventArgs e)
         {
-            GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            GL.ClearColor(0.2f, 0.2f, 0.2f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             shader = new ShaderUtility(@"ACW/Shaders/vShader.vert", @"ACW/Shaders/fShader.frag");
             GL.UseProgram(shader.ShaderProgramID);
@@ -97,9 +97,9 @@ namespace Labs.ACW
 
         private void GenerateLights()
         {
-            LightProperties p1 = MakeLightPropertes(new Vector4(0, 0.5f, 0, 1), new Vector3(0, 0.1f, 0), new Vector3(0, 0.63f, 0), new Vector3(0, 0.05f, 0));
-            LightProperties p2 = MakeLightPropertes(new Vector4(0.2f, 0.2f, 0.2f, 1), new Vector3(1f, 0, 0), new Vector3(1f, 0, 0), new Vector3(0.05f, 0, 0));
-            LightProperties p3 = MakeLightPropertes(new Vector4(-0.2f, 0.2f, 0.2f, 1), new Vector3(0, 0, 0.1f), new Vector3(0, 0, 0.63f), new Vector3(0, 0, 0.05f));
+            LightProperties p1 = MakeLightPropertes(new Vector4(0, 0.5f, 0, 1), new Vector3(0.33f, 0.15f, 0.46f), new Vector3(0.66f, 0.329f, 0.9215f), new Vector3(0.33f, 0.15f, 0.46f));
+            LightProperties p2 = MakeLightPropertes(new Vector4(0.2f, 0.2f, 0.2f, 1), new Vector3(0.46f, 0.12f, 0.44f), new Vector3(1f, 0f, 0.533f), new Vector3(0.46f, 0.12f, 0.44f));
+            LightProperties p3 = MakeLightPropertes(new Vector4(-0.2f, 0.2f, 0.2f, 1), new Vector3(0.11f, 0.12f, 0.49f), new Vector3(0.901f, 0.239f, 1f), new Vector3(0.11f, 0.12f, 0.49f));
             lights.Add(new PointLight(p1, shader.ShaderProgramID));
             lights.Add(new PointLight(p2, shader.ShaderProgramID));
             lights.Add(new PointLight(p3, shader.ShaderProgramID));
