@@ -52,50 +52,115 @@ namespace Labs.ACW
 
         protected override void OnLoad(EventArgs e)
         {
-            GL.ClearColor(0.1f,0.1f,0.1f,1.0f);
+            GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             shader = new ShaderUtility(@"ACW/Shaders/vShader.vert", @"ACW/Shaders/fShader.frag");
             GL.UseProgram(shader.ShaderProgramID);
 
-            staticCam = new Camera(new Vector3(4f, 5f, 6f), new Vector3(0,0,0), this.Width, this.Height, shader.ShaderProgramID);
-            dynCam = new Camera(new Vector3(0, 0f, 2f), this.Width, this.Height, shader.ShaderProgramID);
-            dynCam.Active = true;
+            GenerateCameras();
 
-            LightProperties p1 = MakeLightPropertes(new Vector4(0, 0.5f, 0, 1), new Vector3(0,0.1f,0), new Vector3(0, 0.63f, 0), new Vector3(0,0.1f,0));
-            LightProperties p2 = MakeLightPropertes(new Vector4(0.2f, 0.2f, -0.2f, 1), new Vector3(0.1f,0,0), new Vector3(0.63f, 0,0), new Vector3(0.1f,0,0));
-            LightProperties p3 = MakeLightPropertes(new Vector4(-0.2f, 0.2f, 0.2f, 1), new Vector3(0,0, 0.1f), new Vector3(0,0, 0.63f), new Vector3(0,0,0.1f));
-            lights.Add(new PointLight(p1, shader.ShaderProgramID));
-            lights.Add(new PointLight(p2, shader.ShaderProgramID));
-            lights.Add(new PointLight(p3, shader.ShaderProgramID));
+            GenerateLights();
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
-            Material groundMat = MakeMaterial(new Vector3(0.25f, 0.20725f, 0.20725f), 
-                new Vector3(1, 0.829f, 0.829f), 
-                new Vector3(0.296648f, 0.296648f, 0.296648f), 0.088f);
-            ground = new Cube(new Vector3(0f, -0.06f, 0f), new Vector3(10f, 0.01f, 10f), new Vector3(0f, 0.5f, 0.5f), shader.ShaderProgramID, VAO_IDs[0], groundMat);
-            entities.Add(ground);
-
-
-            Material cubeMat = MakeMaterial(new Vector3(0, 0.1f, 0.06f),
-                new Vector3(0,0.50980392f, 0.50980392f),
-                new Vector3(0.50196078f, 0.50196078f, 0.50196078f), 0.25f);
-            cube = new Cube(new Vector3(0f, 0.1f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(0.4f, 0.3f, 0.8f), shader.ShaderProgramID, VAO_IDs[1], cubeMat);
-            entities.Add(cube);
+            GenerateEntities();
 
             GL.BindVertexArray(0);
 
- 	        base.OnLoad(e);
+            base.OnLoad(e);
         }
 
-        private LightProperties MakeLightPropertes(Vector4 vector4, Vector3 vector31, Vector3 vector32, Vector3 vector33)
+        private void GenerateEntities()
+        {
+            Material groundMat = MakeMaterial(new Vector3(0f, 0.05f, 0f),
+            new Vector3(0.4f, 0.5f, 0.4f),
+                new Vector3(0.04f, 0.7f, 0.04f), 0.078125f);
+            ground = new Cube(new Vector3(0f, -0.06f, 0f), new Vector3(10f, 0.01f, 10f), shader.ShaderProgramID, VAO_IDs[0], groundMat);
+            entities.Add(ground);
+
+
+            Material cubeMat = MakeMaterial(new Vector3(0f, 0f, 0f),
+                new Vector3(0.55f, 0.55f, 0.55f),
+                new Vector3(0.7f, 0.7f, 0.7f), 0.25f);
+            cube = new Cube(new Vector3(0f, 0.25f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(1, 1, 1),
+                new Vector3(1.5f, -0.1f, 1f), shader.ShaderProgramID, VAO_IDs[1], cubeMat);
+            cube.Updatable = true;
+            entities.Add(cube);
+        }
+
+        private void GenerateCameras()
+        {
+            staticCam = new Camera(new Vector3(4f, 5f, 6f), new Vector3(0, 0, 0), this.Width, this.Height, shader.ShaderProgramID);
+            dynCam = new Camera(new Vector3(0, 0f, 2f), new Vector3(0,0,0), this.Width, this.Height, shader.ShaderProgramID);
+            dynCam.Active = true;
+        }
+
+        private void GenerateLights()
+        {
+            LightProperties p1 = MakeLightPropertes(new Vector4(0, 0.5f, 0, 1), new Vector3(0, 0.1f, 0), new Vector3(0, 0.63f, 0), new Vector3(0, 0.05f, 0));
+            LightProperties p2 = MakeLightPropertes(new Vector4(0.2f, 0.2f, 0.2f, 1), new Vector3(1f, 0, 0), new Vector3(1f, 0, 0), new Vector3(0.05f, 0, 0));
+            LightProperties p3 = MakeLightPropertes(new Vector4(-0.2f, 0.2f, 0.2f, 1), new Vector3(0, 0, 0.1f), new Vector3(0, 0, 0.63f), new Vector3(0, 0, 0.05f));
+            lights.Add(new PointLight(p1, shader.ShaderProgramID));
+            lights.Add(new PointLight(p2, shader.ShaderProgramID));
+            lights.Add(new PointLight(p3, shader.ShaderProgramID));
+        }
+
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            dynCam.OnKeyDown(e);
+            if (e.Key == Key.O)
+            {
+                if (dynCam.Active) { dynCam.Active = false; staticCam.Active = true; }
+                else { dynCam.Active = true; staticCam.Active = false; }
+            }
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+ 	        base.OnUpdateFrame(e);
+            dynCam.Update();
+            staticCam.Update();
+            if (dynCam.Active) { ActiveCam = dynCam; }
+            else { ActiveCam = staticCam; }
+            for (int i = 0; i < lights.Count; i++) { lights[i].Update(ActiveCam, i); }
+            for (int i = 0; i < entities.Count; i++) 
+            {
+                if (entities[i].Updatable)
+                    entities[i].Update(ActiveCam, e.Time);
+            }
+
+            for (int i = 0; i < 900000; i++)
+            {
+                long j = i * i;
+            }
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                GL.BindVertexArray(VAO_IDs[i]);
+                entities[i].RenderUpdate();
+                entities[i].Draw();
+            }
+
+            GL.BindVertexArray(0);
+            SwapBuffers();
+        }
+
+        private LightProperties MakeLightPropertes(Vector4 pPosition, Vector3 pAmbientLight, Vector3 pDiffuseLight, Vector3 pSpecularLight)
         {
             return new LightProperties
             {
-                Position = vector4,
-                AmbientLight = vector31,
-                DiffuseLight = vector32,
-                SpecularLight = vector33
+                Position = pPosition,
+                AmbientLight = pAmbientLight,
+                DiffuseLight = pDiffuseLight,
+                SpecularLight = pSpecularLight
             };
         }
 
@@ -110,17 +175,6 @@ namespace Labs.ACW
             };
         }
 
-        protected override void OnKeyDown(KeyboardKeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            dynCam.OnKeyDown(e);
-            if (e.Key == Key.O)
-            {
-                if (dynCam.Active) { dynCam.Active = false; staticCam.Active = true; }
-                else { dynCam.Active = true; staticCam.Active = false; }
-            }
-        }
-
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -133,41 +187,12 @@ namespace Labs.ACW
             }
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
-        {
- 	        base.OnUpdateFrame(e);
-
-            dynCam.Update();
-            staticCam.Update();
-            if (dynCam.Active) { ActiveCam = dynCam; }
-            else { ActiveCam = staticCam; }
-            for (int i = 0; i < lights.Count; i++) { lights[i].Update(ActiveCam, i); }
-        }
-
-        protected override void OnRenderFrame(FrameEventArgs e)
-        {
-            base.OnRenderFrame(e);
-
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            for (int i = 0; i < entities.Count; i++)
-            {
-                GL.BindVertexArray(VAO_IDs[i]);
-                entities[i].Update();
-                entities[i].Draw();
-            }
-
-            GL.BindVertexArray(0);
-            SwapBuffers();
-        }
-
         protected override void OnUnload(EventArgs e)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
-            cube.Dispose();
-            ground.Dispose();
+            for (int i = 0; i < entities.Count; i++) { entities[i].Dispose(); }
             GL.DeleteVertexArrays(VAO_IDs.Length, VAO_IDs);
             shader.Delete();
             base.OnUnload(e);

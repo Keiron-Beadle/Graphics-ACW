@@ -11,10 +11,10 @@ namespace Labs.ACW.Objects
 {
     class Cube : Object
     {
-        public Cube(Vector3 inPosition, Vector3 Dimensions, Vector3 RGB, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : this(inPosition, Dimensions, RGB,  Vector3.Zero, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
-        public Cube(Vector3 inPosition, Vector3 D, Vector3 RGB,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial) 
+        public Cube(Vector3 inPosition, Vector3 Dimensions, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : this(inPosition, Dimensions,  Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
+        public Cube(Vector3 inPosition, Vector3 D,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : base(inPosition, D, inScale, inRotation, shaderProgramID, vao_ID, pMaterial) 
         {
             float x = D.X, y = D.Y, z = D.Z;
             vertices = new float[] {
@@ -98,8 +98,17 @@ namespace Labs.ACW.Objects
 
         }
 
-        public override void Update()
+        public override void Update(Camera pActiveCam, double deltaT)
         {
+            Matrix4 rot = CreateRotationMatrix(new Vector3(-1.5f, 0.5f, 0.8f) * (float)deltaT);
+            Console.WriteLine(deltaT);
+            Matrix4.Mult(ref rot, ref mLocalTransform, out mLocalTransform);
+        }
+
+        public override void RenderUpdate()
+        {
+            int uLocalLocation = GL.GetUniformLocation(shaderID, "uLocal");
+            GL.UniformMatrix4(uLocalLocation, true, ref mLocalTransform);
             UpdateUMaterial();
         }
 

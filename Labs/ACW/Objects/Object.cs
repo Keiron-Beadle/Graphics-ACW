@@ -20,14 +20,18 @@ namespace Labs.ACW.Objects
         protected Object parent;
         protected int shaderID;
         protected Material thisMaterial;
+        protected Vector3 position;
 
         public Matrix4 LocalTransform => mLocalTransform;
+        public bool Updatable;
 
-        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : this(inPosition, Vector3.Zero, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
+        public Object(Vector3 inPosition, Vector3 pDimensions, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : this(inPosition, pDimensions, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
 
-        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial)
+        public Object(Vector3 inPosition, Vector3 pDimensions, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial)
         {
+            Updatable = false;
+            position = inPosition;
             thisMaterial = pMaterial;
             this.VAO_ID = vao_ID;
             shaderID = shaderProgramID;
@@ -37,16 +41,23 @@ namespace Labs.ACW.Objects
             {
                 mLocalTransform = parent.LocalTransform *
                     Matrix4.CreateScale(inScale) *
-                    Matrix4.CreateTranslation(inPosition) *
+                    Matrix4.CreateTranslation(position) *
                     rotationMatrix;
             }
             else
             {
-                mLocalTransform = Matrix4.CreateTranslation(inPosition);
+                mLocalTransform = Matrix4.CreateTranslation(-pDimensions / 2) *
+                                  Matrix4.CreateScale(inScale) *
+                                  rotationMatrix *
+                                  Matrix4.CreateTranslation(position);
             }
             int uLocalLocation = GL.GetUniformLocation(shaderID, "uLocal");
-            GL.UniformMatrix4(uLocalLocation, true, ref mLocalTransform);
+            GL.UniformMatrix4(uLocalLocation, false, ref mLocalTransform);
         }
+
+        public abstract void Update(Camera pActiveCam, double pDeltaTime);
+
+        public abstract void RenderUpdate();
 
         protected abstract void UpdateUMaterial();
 
@@ -56,11 +67,9 @@ namespace Labs.ACW.Objects
             GL.UniformMatrix4(uLocalLocation, true, ref mLocalTransform);
         }
 
-        public abstract void Update();
-
         public abstract void Dispose();
 
-        private Matrix4 CreateRotationMatrix(Vector3 inRotation)
+        protected Matrix4 CreateRotationMatrix(Vector3 inRotation)
         {
             Matrix4 temp = Matrix4.Identity;
             if (inRotation.X != 0) { temp *= Matrix4.CreateRotationX(inRotation.X); }
