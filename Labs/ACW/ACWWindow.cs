@@ -13,9 +13,10 @@ namespace Labs.ACW
     public class ACWWindow : GameWindow
     {
         private Camera staticCam, dynCam, ActiveCam;
-        private int[] VAO_IDs = new int[2];
+        private int[] VAO_IDs = new int[3];
         private ShaderUtility shader;
         private Cube cube, ground;
+        private Tetrahedron tet;
         List<Objects.Object> entities = new List<Objects.Object>();
         List<Light> lights = new List<Light>();
 
@@ -85,7 +86,12 @@ namespace Labs.ACW
             cube = new Cube(new Vector3(0f, 0.25f, 0f), new Vector3(0.15f, 0.15f, 0.15f), new Vector3(1, 1, 1),
                 new Vector3(1.5f, -0.1f, 1f), shader.ShaderProgramID, VAO_IDs[1], cubeMat);
             cube.Updatable = true;
-            entities.Add(cube);
+            //entities.Add(cube);
+
+            tet = new Tetrahedron(new Vector3(0f, 0.25f, 0f), new Vector3(0.2f, 0.2f, 0.2f), new Vector3(1, 1, 1),
+                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[2], cubeMat);
+            tet.Updatable = true;
+            entities.Add(tet);
         }
 
         private void GenerateCameras()

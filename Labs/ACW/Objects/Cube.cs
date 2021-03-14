@@ -98,10 +98,10 @@ namespace Labs.ACW.Objects
 
         }
 
-        public override void Update(Camera pActiveCam, double deltaT)
+        public override void Update(Camera pActiveCam, double pDeltaTime)
         {
-            Matrix4 rot = CreateRotationMatrix(new Vector3(-0.95f, 0.4f, 0.85f) * (float)deltaT);
-            Console.WriteLine(deltaT);
+            Matrix4 rot = CreateRotationMatrix(new Vector3(-0.95f, 0.4f, 0.85f) * (float)pDeltaTime);
+            Console.WriteLine(pDeltaTime);
             Matrix4.Mult(ref rot, ref mLocalTransform, out mLocalTransform);
         }
 
