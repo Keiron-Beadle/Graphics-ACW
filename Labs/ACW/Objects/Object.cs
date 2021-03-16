@@ -12,23 +12,22 @@ namespace Labs.ACW.Objects
 {
     abstract class Object
     {
-        protected int VAO_ID;
+        protected int shaderID, VAO_ID, texture_ID = -1;
         protected int[] VBO_IDs;
         protected float[] vertices;
         protected uint[] indices;
         protected Matrix4 mLocalTransform = Matrix4.Identity;
         protected Object parent;
-        protected int shaderID;
         protected Material thisMaterial;
         protected Vector3 position;
 
         public Matrix4 LocalTransform => mLocalTransform;
         public bool Updatable;
 
-        public Object(Vector3 inPosition, Vector3 pDimensions, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : this(inPosition, pDimensions, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
+        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : this(inPosition, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, -1, pMaterial) { }
 
-        public Object(Vector3 inPosition, Vector3 pDimensions, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial)
+        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, int textureID, Material pMaterial)
         {
             Updatable = false;
             position = inPosition;
@@ -46,7 +45,7 @@ namespace Labs.ACW.Objects
             }
             else
             {
-                mLocalTransform = Matrix4.CreateTranslation(-pDimensions / 2) *
+                mLocalTransform = Matrix4.CreateTranslation(-position / 2) *
                                   Matrix4.CreateScale(inScale) *
                                   rotationMatrix *
                                   Matrix4.CreateTranslation(position);

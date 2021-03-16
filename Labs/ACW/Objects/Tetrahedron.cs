@@ -11,39 +11,39 @@ namespace Labs.ACW.Objects
 {
     class Tetrahedron : Object
     {
-        public Tetrahedron(Vector3 inPosition, Vector3 D, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial)
-            : base(inPosition, D, inScale, inRotation, shaderProgramID, vao_ID, pMaterial)
+        public Tetrahedron(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, int textureID, Material pMaterial)
+            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, textureID, pMaterial)
         {
-            float dx = D.X , dy = D.Y, dz = D.Z ;
-            Vector3 crossFirst = Vector3.Cross(new Vector3(-dx, -dy, -dz) - new Vector3(dx,-dy, dz)
-                , new Vector3(-dx, -dy, -dz) - new Vector3(0,-dy,dz));
+            Vector3 p1 = new Vector3(0.9428f, -0.33333f, 0) + inPosition;
+            Vector3 p2 = new Vector3(-0.4714f, -0.33333f, -0.81649f) + inPosition;
+            Vector3 p3 = new Vector3(-0.4714f, -0.3333f, 0.81649f) + inPosition;
+            Vector3 p4 = new Vector3(0, 1, 0) + inPosition;
 
-            Vector3 crossSecond = Vector3.Cross(new Vector3(0,-dy,dz) - new Vector3(dx, -dy, -dz),
-                   new Vector3(0,-dy,dz)-new Vector3(0,dy,0));
+            Vector3 crossFirst = Vector3.Cross(p2-p1,p3-p1);
 
-            Vector3 crossThird = Vector3.Cross(new Vector3(-dx, -dy, -dz) - new Vector3(dx, -dy, -dz),
-                new Vector3(0,-dy,dz) - new Vector3(0,dy,0));
+            Vector3 crossSecond = Vector3.Cross(p2-p1,p4-p1);
 
-            Vector3 crossFourth = Vector3.Cross(new Vector3(0,-dy,dz) - new Vector3(-dx,-dy,-dz),
-                new Vector3(0,-dy,dz) - new Vector3(0,dy,0));
+            Vector3 crossThird = Vector3.Cross(p1-p3, p4-p3);
 
+            Vector3 crossFourth = Vector3.Cross(p3-p2,p4-p3);
+            //0.142
             vertices = new float[]
             {
-                - dx, - dy, - dz, crossFirst.X, crossFirst.Y, crossFirst.Z,
-                dx, - dy, - dz, crossFirst.X, crossFirst.Y, crossFirst.Z,
-                0, - dy, dz, crossFirst.X, crossFirst.Y, crossFirst.Z,
+                p1.X, p1.Y, p1.Z, crossFirst.X, crossFirst.Y, crossFirst.Z,
+                p2.X, p2.Y, p2.Z, crossFirst.X, crossFirst.Y, crossFirst.Z,
+                p3.X, p3.Y, p3.Z, crossFirst.X, crossFirst.Y, crossFirst.Z,
 
-                0,  - dy, dz, crossSecond.X, crossSecond.Y, crossSecond.Z,
-                dx, - dy, - dz, crossSecond.X, crossSecond.Y, crossSecond.Z,
-                0, dy, 0, crossSecond.X, crossSecond.Y, crossSecond.Z,
+                p2.X, p2.Y, p2.Z, crossSecond.X, crossSecond.Y, crossSecond.Z,
+                p4.X, p4.Y, p4.Z, crossSecond.X, crossSecond.Y, crossSecond.Z,
+                p1.X, p1.Y, p1.Z, crossSecond.X, crossSecond.Y, crossSecond.Z,
 
-                -dx, -dy, -dz, crossThird.X, crossThird.Y, crossThird.Z,
-                dx, -dy, -dz, crossThird.X, crossThird.Y, crossThird.Z,
-                0,dy,0, crossThird.X, crossThird.Y, crossThird.Z,
+                p3.X, p3.Y, p3.Z, crossThird.X, crossThird.Y, crossThird.Z,
+                p1.X, p1.Y, p1.Z, crossThird.X, crossThird.Y, crossThird.Z,
+                p4.X, p4.Y, p4.Z, crossThird.X, crossThird.Y, crossThird.Z,
 
-                0, -dy, dz, crossFourth.X, crossFourth.Y, crossFourth.Z,
-                -dx, -dy, -dz, crossFourth.X, crossFourth.Y, crossFourth.Z,
-                0,dy,0, crossFourth.X, crossFourth.Y, crossFourth.Z
+                p2.X, p2.Y, p2.Z, crossFourth.X, crossFourth.Y, crossFourth.Z,
+                p3.X, p3.Y, p3.Z, crossFourth.X, crossFourth.Y, crossFourth.Z,
+                p4.X, p4.Y, p4.Z, crossFourth.X, crossFourth.Y, crossFourth.Z
             };
 
             int vPositionLocation = GL.GetAttribLocation(shaderID, "vPosition");
@@ -83,7 +83,7 @@ namespace Labs.ACW.Objects
         public override void Update(Camera pActiveCam, double pDeltaTime)
         {
             Matrix4 rot = CreateRotationMatrix(new Vector3(0f, 1f, 0f) * (float)pDeltaTime);
-            Console.WriteLine(pDeltaTime);
+            //Console.WriteLine((int)Math.Round(1/pDeltaTime,0));
             Matrix4.Mult(ref rot, ref mLocalTransform, out mLocalTransform);
         }
 

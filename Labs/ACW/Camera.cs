@@ -22,6 +22,10 @@ namespace Labs.ACW
         public Matrix4 ProjectionMatrix { get { return projMat; } }
         public Matrix4 ViewMatrix { get { return viewMat; } }
 
+
+        public void SetViewMatrix(Matrix4 mat) { viewMat = mat; }
+
+
         public Camera(Vector3 inPosition, float clientWidth, float clientHeight, int shaderProgramID)
         : this (inPosition, Vector3.Zero,clientWidth, clientHeight, shaderProgramID) { }
 
@@ -50,7 +54,14 @@ namespace Labs.ACW
         {
             if (!Active) { return; }
             Matrix4 temp = Matrix4.Identity;
-
+            if (e.Key == Key.Down)
+            {
+                temp *= Matrix4.CreateRotationX(rotSpd);
+            }
+            if (e.Key == Key.Up)
+            {
+                temp *= Matrix4.CreateRotationX(-rotSpd);
+            }
             if (e.Key == Key.Q)
             {
                 temp *= Matrix4.CreateRotationY(-rotSpd);

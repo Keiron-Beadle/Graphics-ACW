@@ -11,12 +11,12 @@ namespace Labs.ACW.Objects
 {
     class Cube : Object
     {
-        public Cube(Vector3 inPosition, Vector3 Dimensions, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : this(inPosition, Dimensions,  Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
-        public Cube(Vector3 inPosition, Vector3 D,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : base(inPosition, D, inScale, inRotation, shaderProgramID, vao_ID, pMaterial) 
+        public Cube(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial) 
+            : this(inPosition,  Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, -1, pMaterial) { }
+        public Cube(Vector3 inPosition,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, int textureID, Material pMaterial) 
+            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, textureID, pMaterial) 
         {
-            float x = D.X, y = D.Y, z = D.Z;
+            float x = 0.15f, y = 0.15f, z = 0.15f;
             vertices = new float[] {
             -x, -y, -z,  0.0f,  0.0f, -1.0f,
             x, -y, -z,  0.0f,  0.0f, -1.0f,
@@ -101,7 +101,7 @@ namespace Labs.ACW.Objects
         public override void Update(Camera pActiveCam, double pDeltaTime)
         {
             Matrix4 rot = CreateRotationMatrix(new Vector3(-0.95f, 0.4f, 0.85f) * (float)pDeltaTime);
-            Console.WriteLine(pDeltaTime);
+            //Console.WriteLine(pDeltaTime);
             Matrix4.Mult(ref rot, ref mLocalTransform, out mLocalTransform);
         }
 
