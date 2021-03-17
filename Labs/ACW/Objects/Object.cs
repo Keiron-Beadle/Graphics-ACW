@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +14,9 @@ namespace Labs.ACW.Objects
 {
     abstract class Object
     {
-        protected int shaderID, VAO_ID, texture_ID = -1;
+        protected int shaderID, VAO_ID, texture_ID = 0;
+        protected string textureFilePath;
+        protected BitmapData TextureData;
         protected int[] VBO_IDs;
         protected float[] vertices;
         protected uint[] indices;
@@ -25,10 +29,11 @@ namespace Labs.ACW.Objects
         public bool Updatable;
 
         public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : this(inPosition, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, -1, pMaterial) { }
+            : this(inPosition, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
 
-        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, int textureID, Material pMaterial)
+        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, string texFilePath = null)
         {
+            textureFilePath = texFilePath;
             Updatable = false;
             position = inPosition;
             thisMaterial = pMaterial;
@@ -67,6 +72,33 @@ namespace Labs.ACW.Objects
         }
 
         public abstract void Dispose();
+
+        protected void LoadTexture()
+        {
+            Bitmap texBitmap;
+            if (System.IO.File.Exists(textureFilePath))
+            {
+                texBitmap = new Bitmap(textureFilePath);
+                BitmapData texData = texBitmap.LockBits(new Rectangle(0, 0, texBitmap.Width, texBitmap.Height),
+                    ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                TextureData = texData;
+            }
+            else
+            {
+                throw new Exception("Could not find file: " + textureFilePath);
+            }
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.GenTextures(1, out texture_ID);
+            GL.BindTexture(TextureTarget.Texture2D, texture_ID);
+            GL.TexImage2D(TextureTarget.Texture2D,
+                0, PixelInternalFormat.Rgba, TextureData.Width, TextureData.Height,
+                0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                PixelType.UnsignedByte, TextureData.Scan0);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+            texBitmap.UnlockBits(TextureData);
+        }
 
         protected Matrix4 CreateRotationMatrix(Vector3 inRotation)
         {

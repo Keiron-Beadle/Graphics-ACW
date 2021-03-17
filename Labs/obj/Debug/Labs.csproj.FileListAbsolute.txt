@@ -107,3 +107,5 @@ C:\Users\Keiro\Desktop\Graphics ACW\Labs\obj\Debug\Labs.pdb
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Resources\woodTex.jpg
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Resources\woodTexHeight.png
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Resources\woodTexNormal.jpg
+C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Shaders\texturedfragShader.frag
+C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Shaders\texturedvertShader.vert

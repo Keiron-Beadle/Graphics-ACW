@@ -16,14 +16,14 @@ namespace Labs.ACW
     {
         private Camera staticCam, dynCam, ActiveCam;
         private int[] VAO_IDs = new int[6];
-        private ShaderUtility shader;
+        private ShaderUtility shader, texturedShader;
         private Cube cube, ground, wallL, wallR, wallF;
         private Tetrahedron tet;
         List<Objects.Object> entities = new List<Objects.Object>();
+        List<Cube> walls = new List<Cube>();
         List<Light> lights = new List<Light>();
 
         private string[] textureFilePaths = { "ACW/Resources/woodTex.jpg" };
-        private BitmapData[] textureData;
 
         public ACWWindow()
             : base(
@@ -58,11 +58,10 @@ namespace Labs.ACW
 
         protected override void OnLoad(EventArgs e)
         {
-            textureData = new BitmapData[textureFilePaths.Length];
-
             GL.ClearColor(0.392f, 0.584f, 0.929f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             shader = new ShaderUtility(@"ACW/Shaders/vShader.vert", @"ACW/Shaders/fShader.frag");
+            texturedShader = new ShaderUtility(@"ACW/Shaders/texturedvertShader.vert", @"ACW/Shaders/texturedfragShader.frag");
             GL.UseProgram(shader.ShaderProgramID);
 
             GenerateCameras();
@@ -71,8 +70,6 @@ namespace Labs.ACW
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
-            LoadTextures();
-
             GenerateEntities();
 
             GL.BindVertexArray(0);
@@ -80,29 +77,12 @@ namespace Labs.ACW
             base.OnLoad(e);
         }
 
-        private void LoadTextures()
-        {
-            foreach (string s in textureFilePaths)
-            {
-                if (System.IO.File.Exists(s))
-                {
-                    Bitmap texBitmap = new Bitmap(s);
-                    BitmapData texData = texBitmap.LockBits(new Rectangle(0, 0, texBitmap.Width, texBitmap.Height),
-                        ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                }
-                else
-                {
-                    throw new Exception("Could not find file: " + s);
-                }
-            }
-        }
-
         private void GenerateEntities()
         {
             Material groundMat = MakeMaterial(new Vector3(0f, 0.05f, 0f),
             new Vector3(0.3f, 0.3f, 0.3f),
                 new Vector3(0.05f, 0.05f, 0.05f), 0.078125f);
-            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(15f, 0.1f, 15f), Vector3.Zero, shader.ShaderProgramID, VAO_IDs[0], -1, groundMat);
+            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(15f, 0.1f, 15f), Vector3.Zero, shader.ShaderProgramID, VAO_IDs[0], groundMat);
             entities.Add(ground);
 
 
@@ -110,27 +90,29 @@ namespace Labs.ACW
                 new Vector3(0.55f, 0.55f, 0.55f),
                 new Vector3(0.7f, 0.7f, 0.7f), 0.25f);
 
-            cube = new Cube(new Vector3(0.6f, 0.2f, -0.2f), new Vector3(0.5f, 0.5f, 0.5f),
-                new Vector3(1.1f, -0.1f, 1f), shader.ShaderProgramID, VAO_IDs[1], -1, cubeMat);
-            cube.Updatable = true;
-            entities.Add(cube);
+           // cube = new Cube(new Vector3(0.6f, 0.2f, -0.2f), new Vector3(0.5f, 0.5f, 0.5f),
+           //     new Vector3(1.1f, -0.1f, 1f), shader.ShaderProgramID, VAO_IDs[1], cubeMat);
+           // cube.Updatable = true;
+           // entities.Add(cube);
+
+            //tet = new Tetrahedron(new Vector3(0f, 0f, 0f), new Vector3(0.25f, 0.25f, 0.25f),
+            //    new Vector3(0f, 0, 0), shader.ShaderProgramID, VAO_IDs[5], cubeMat);
+           // tet.Updatable = true;
+           // entities.Add(tet);
+
 
             wallL = new Cube(new Vector3(-1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[2], -1, cubeMat);
-            entities.Add(wallL);
+                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[2], cubeMat, textureFilePaths[0]);
+            walls.Add(wallL);
 
             wallR = new Cube(new Vector3(1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                 new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[3], -1, cubeMat);
-            entities.Add(wallR);
+                 new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[3], cubeMat, textureFilePaths[0]);
+            walls.Add(wallR);
 
             wallF = new Cube(new Vector3(0f, -0.6f, -1f), new Vector3(7f, 3f, 0.3f),
-                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[4], -1, cubeMat);
-            entities.Add(wallF);
+                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[4], cubeMat, textureFilePaths[0]);
+            walls.Add(wallF);
 
-            tet = new Tetrahedron(new Vector3(0f, 0f, 0f), new Vector3(0.25f, 0.25f, 0.25f),
-                new Vector3(0f, 0, 0), shader.ShaderProgramID, VAO_IDs[5], -1, cubeMat);
-            tet.Updatable = true;
-            entities.Add(tet);
         }
 
         private void GenerateCameras()
@@ -187,12 +169,20 @@ namespace Labs.ACW
             base.OnRenderFrame(e);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-           
+
+            GL.UseProgram(shader.ShaderProgramID);
             for (int i = 0; i < entities.Count; i++)
             {
                 GL.BindVertexArray(VAO_IDs[i]);
                 entities[i].RenderUpdate();
                 entities[i].Draw();
+            }
+            GL.UseProgram(texturedShader.ShaderProgramID);
+            for (int i = entities.Count; i < walls.Count + entities.Count; i++)
+            {
+                GL.BindVertexArray(VAO_IDs[i]);
+                walls[i - entities.Count].RenderUpdate();
+                walls[i - entities.Count].Draw();
             }
 
             GL.BindVertexArray(0);

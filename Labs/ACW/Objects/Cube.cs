@@ -2,6 +2,8 @@
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,78 +13,86 @@ namespace Labs.ACW.Objects
 {
     class Cube : Object
     {
-        public Cube(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial) 
-            : this(inPosition,  Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, -1, pMaterial) { }
-        public Cube(Vector3 inPosition,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, int textureID, Material pMaterial) 
-            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, textureID, pMaterial) 
+        public Cube(Vector3 inPosition,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, string texFilePath = null) 
+            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial, texFilePath)
         {
-            float x = 0.15f, y = 0.15f, z = 0.15f;
-            vertices = new float[] {
-            -x, -y, -z,  0.0f,  0.0f, -1.0f,
-            x, -y, -z,  0.0f,  0.0f, -1.0f,
-            x, y, -z,  0.0f,  0.0f, -1.0f,
-            x, y, -z,  0.0f,  0.0f, -1.0f,
-            -x, y, -z,  0.0f,  0.0f, -1.0f,
-            -x, -y, -z,  0.0f,  0.0f, -1.0f,
-
-
-            -x,-y,z,  0.0f,  0.0f,  1.0f,
-            x,-y,z,  0.0f,  0.0f,  1.0f,
-            x,y,z,  0.0f,  0.0f,  1.0f,
-            x,y,z,  0.0f,  0.0f,  1.0f,
-            -x,y,z,  0.0f,  0.0f,  1.0f,
-            -x,-y,z,  0.0f,  0.0f,  1.0f,
-
-
-            -x,y,z, -1.0f,  0.0f,  0.0f,
-            -x,y,-z, -1.0f,  0.0f,  0.0f,
-            -x,-y,-z, -1.0f,  0.0f,  0.0f,
-            -x,-y,-z, -1.0f,  0.0f,  0.0f,
-            -x,-y,z, -1.0f,  0.0f,  0.0f,
-            -x,y,z, -1.0f,  0.0f,  0.0f,
-
-
-             x,y,z,  1.0f,  0.0f,  0.0f,
-             x,y,-z,  1.0f,  0.0f,  0.0f,
-             x,-y,-z,  1.0f,  0.0f,  0.0f,
-             x,-y,-z,  1.0f,  0.0f,  0.0f,
-             x,-y,z,  1.0f,  0.0f,  0.0f,
-             x,y,z,  1.0f,  0.0f,  0.0f,
-
-
-            -x,-y,-z,  0.0f, -1.0f,  0.0f,
-            x,-y,-z,  0.0f, -1.0f,  0.0f,
-            x,-y,z,  0.0f, -1.0f,  0.0f,
-            x,-y,z,  0.0f, -1.0f,  0.0f,
-            -x,-y,z,  0.0f, -1.0f,  0.0f,
-            -x,-y,-z,  0.0f, -1.0f,  0.0f,
-
-
-            -x,y,-z,  0.0f,  1.0f,  0.0f,
-            x,y,-z,  0.0f,  1.0f,  0.0f,
-            x,y,z,  0.0f,  1.0f,  0.0f,
-            x,y,z,  0.0f,  1.0f,  0.0f,
-            -x,y,z,  0.0f,  1.0f,  0.0f,
-            -x,y,-z,  0.0f,  1.0f,  0.0f
-
-            };
+            float[] vboData = CreateVBOData();
 
             int vPositionLocation = GL.GetAttribLocation(shaderID, "vPosition");
             int vNormalLocation = GL.GetAttribLocation(shaderID, "vNormal");
-
+            int vTexCoordLocation = GL.GetAttribLocation(shaderID, "vTexCoords");
             GL.GenBuffers(VBO_IDs.Length, VBO_IDs);
-
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO_IDs[0]);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * sizeof(float)), vertices, BufferUsageHint.StaticDraw);
+
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vboData.Length * sizeof(float)), vboData, BufferUsageHint.StaticDraw);
             CheckVertexLoad();
 
             GL.BindVertexArray(VAO_ID);
 
-            GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+            GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
             GL.EnableVertexAttribArray(vPositionLocation);
 
-            GL.VertexAttribPointer(vNormalLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+            GL.VertexAttribPointer(vNormalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(vNormalLocation);
+
+            GL.VertexAttribPointer(vTexCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+            GL.EnableVertexAttribArray(vTexCoordLocation);
+        }
+
+        private float[] CreateVBOData()
+        {
+            Vector2 a = new Vector2(1, 0); Vector2 b = new Vector2(0, 0);
+            Vector2 c = new Vector2(0, 1); Vector2 d = new Vector2(1, 1);
+            float x = 0.15f, y = 0.15f, z = 0.15f;
+            return new float[] {
+            -x, -y, -z,  0.0f,  0.0f, -1.0f, a.X,a.Y,
+            x, -y, -z,  0.0f,  0.0f, -1.0f,  b.X, b.Y,
+            x, y, -z,  0.0f,  0.0f, -1.0f, c.X, c.Y,
+            x, y, -z,  0.0f,  0.0f, -1.0f, c.X, c.Y,
+            -x, y, -z,  0.0f,  0.0f, -1.0f, d.X, d.Y,
+            -x, -y, -z,  0.0f,  0.0f, -1.0f, a.X, a.Y,
+
+
+            -x,-y,z,  0.0f,  0.0f,  1.0f, a.X, a.Y,
+            x,-y,z,  0.0f,  0.0f,  1.0f, b.X, b.Y,
+            x,y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
+            x,y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
+            -x,y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
+            -x,-y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
+
+
+            -x,y,z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+            -x,y,-z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+            -x,-y,-z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+            -x,-y,-z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+            -x,-y,z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+            -x,y,z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+
+
+             x,y,z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
+             x,y,-z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
+             x,-y,-z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
+             x,-y,-z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
+             x,-y,z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
+             x,y,z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
+
+
+            -x,-y,-z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+            x,-y,-z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+            x,-y,z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+            x,-y,z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+            -x,-y,z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+            -x,-y,-z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+
+
+            -x,y,-z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
+            x,y,-z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
+            x,y,z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
+            x,y,z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
+            -x,y,z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
+            -x,y,-z,  0.0f,  1.0f,  0.0f, c.X, c.Y
+
+            };
         }
 
         public override void Dispose()

@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +12,8 @@ namespace Labs.ACW.Objects
 {
     class Tetrahedron : Object
     {
-        public Tetrahedron(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, int textureID, Material pMaterial)
-            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, textureID, pMaterial)
+        public Tetrahedron(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, string texFilePath = null)
+            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial, texFilePath)
         {
             Vector3 p1 = new Vector3(0.9428f, -0.33333f, 0) + inPosition;
             Vector3 p2 = new Vector3(-0.4714f, -0.33333f, -0.81649f) + inPosition;
