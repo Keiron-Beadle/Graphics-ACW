@@ -16,16 +16,19 @@ namespace Labs.ACW.Objects
         public Cube(Vector3 inPosition,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, string texFilePath = null) 
             : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial, texFilePath)
         {
-            float[] vboData = CreateVBOData();
-
+            vboData = CreateVBOData();
+            if (textureFilePath != null)
+                LoadTexture();
             int vPositionLocation = GL.GetAttribLocation(shaderID, "vPosition");
             int vNormalLocation = GL.GetAttribLocation(shaderID, "vNormal");
             int vTexCoordLocation = GL.GetAttribLocation(shaderID, "vTexCoords");
+            int uTextureSamplerLocation = GL.GetUniformLocation(shaderID, "uTextureSampler");
+            GL.Uniform1(uTextureSamplerLocation, 0);
             GL.GenBuffers(VBO_IDs.Length, VBO_IDs);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO_IDs[0]);
 
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vboData.Length * sizeof(float)), vboData, BufferUsageHint.StaticDraw);
-            CheckVertexLoad();
+            CheckVBODataLoad();
 
             GL.BindVertexArray(VAO_ID);
 
@@ -35,8 +38,11 @@ namespace Labs.ACW.Objects
             GL.VertexAttribPointer(vNormalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(vNormalLocation);
 
-            GL.VertexAttribPointer(vTexCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
-            GL.EnableVertexAttribArray(vTexCoordLocation);
+            if (textureFilePath != null)
+            {
+                GL.VertexAttribPointer(vTexCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+                GL.EnableVertexAttribArray(vTexCoordLocation);
+            }
         }
 
         private float[] CreateVBOData()
@@ -53,43 +59,43 @@ namespace Labs.ACW.Objects
             -x, -y, -z,  0.0f,  0.0f, -1.0f, a.X, a.Y,
 
 
-            -x,-y,z,  0.0f,  0.0f,  1.0f, a.X, a.Y,
-            x,-y,z,  0.0f,  0.0f,  1.0f, b.X, b.Y,
-            x,y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
-            x,y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
+            -x,-y,z,  0.0f,  0.0f,  1.0f, b.X, b.Y,
+            x,-y,z,  0.0f,  0.0f,  1.0f, a.X, a.Y,
+            x,y,z,  0.0f,  0.0f,  1.0f,d.X, d.Y,
+            x,y,z,  0.0f,  0.0f,  1.0f,d.X, d.Y,
             -x,y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
-            -x,-y,z,  0.0f,  0.0f,  1.0f,c.X, c.Y,
+            -x,-y,z,  0.0f,  0.0f,  1.0f,b.X, b.Y,
 
 
-            -x,y,z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+            -x,y,z, -1.0f,  0.0f,  0.0f,d.X, d.Y,
             -x,y,-z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
-            -x,-y,-z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
-            -x,-y,-z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
-            -x,-y,z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
-            -x,y,z, -1.0f,  0.0f,  0.0f,c.X, c.Y,
+            -x,-y,-z, -1.0f,  0.0f,  0.0f,b.X, b.Y,
+            -x,-y,-z, -1.0f,  0.0f,  0.0f,b.X, b.Y,
+            -x,-y,z, -1.0f,  0.0f,  0.0f,a.X, a.Y,
+            -x,y,z, -1.0f,  0.0f,  0.0f,d.X, d.Y,
 
 
              x,y,z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
-             x,y,-z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
-             x,-y,-z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
-             x,-y,-z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
-             x,-y,z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
+             x,y,-z,  1.0f,  0.0f,  0.0f,d.X, d.Y,
+             x,-y,-z,  1.0f,  0.0f,  0.0f,a.X, a.Y,
+             x,-y,-z,  1.0f,  0.0f,  0.0f,a.X, a.Y,
+             x,-y,z,  1.0f,  0.0f,  0.0f,b.X, b.Y,
              x,y,z,  1.0f,  0.0f,  0.0f,c.X, c.Y,
 
 
-            -x,-y,-z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
-            x,-y,-z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
-            x,-y,z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
-            x,-y,z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+            -x,-y,-z,  0.0f, -1.0f,  0.0f,b.X, b.Y,
+            x,-y,-z,  0.0f, -1.0f,  0.0f,a.X, a.Y,
+            x,-y,z,  0.0f, -1.0f,  0.0f,d.X, d.Y,
+            x,-y,z,  0.0f, -1.0f,  0.0f,d.X, d.Y,
             -x,-y,z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
-            -x,-y,-z,  0.0f, -1.0f,  0.0f,c.X, c.Y,
+            -x,-y,-z,  0.0f, -1.0f,  0.0f,b.X, b.Y,
 
 
             -x,y,-z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
-            x,y,-z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
-            x,y,z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
-            x,y,z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
-            -x,y,z,  0.0f,  1.0f,  0.0f,c.X, c.Y,
+            x,y,-z,  0.0f,  1.0f,  0.0f,d.X, d.Y,
+            x,y,z,  0.0f,  1.0f,  0.0f,a.X, a.Y,
+            x,y,z,  0.0f,  1.0f,  0.0f,a.X, a.Y,
+            -x,y,z,  0.0f,  1.0f,  0.0f,b.X, b.Y,
             -x,y,-z,  0.0f,  1.0f,  0.0f, c.X, c.Y
 
             };

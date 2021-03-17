@@ -28,7 +28,7 @@ namespace Labs.ACW.Objects
 
             Vector3 crossFourth = Vector3.Cross(p3-p2,p4-p3);
             //0.142
-            vertices = new float[]
+            vboData = new float[]
             {
                 p1.X, p1.Y, p1.Z, crossFirst.X, crossFirst.Y, crossFirst.Z,
                 p2.X, p2.Y, p2.Z, crossFirst.X, crossFirst.Y, crossFirst.Z,
@@ -52,8 +52,8 @@ namespace Labs.ACW.Objects
 
             GL.GenBuffers(VBO_IDs.Length, VBO_IDs);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO_IDs[0]);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * sizeof(float)), vertices, BufferUsageHint.StaticDraw);
-            CheckVertexLoad();
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vboData.Length * sizeof(float)), vboData, BufferUsageHint.StaticDraw);
+            CheckVBODataLoad();
 
             GL.BindVertexArray(VAO_ID);
             GL.VertexAttribPointer(vPositionLocation, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);

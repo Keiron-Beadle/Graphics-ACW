@@ -18,7 +18,7 @@ namespace Labs.ACW.Objects
         protected string textureFilePath;
         protected BitmapData TextureData;
         protected int[] VBO_IDs;
-        protected float[] vertices;
+        protected float[] vboData;
         protected uint[] indices;
         protected Matrix4 mLocalTransform = Matrix4.Identity;
         protected Object parent;
@@ -79,6 +79,7 @@ namespace Labs.ACW.Objects
             if (System.IO.File.Exists(textureFilePath))
             {
                 texBitmap = new Bitmap(textureFilePath);
+                texBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
                 BitmapData texData = texBitmap.LockBits(new Rectangle(0, 0, texBitmap.Width, texBitmap.Height),
                     ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                 TextureData = texData;
@@ -109,10 +110,10 @@ namespace Labs.ACW.Objects
             return temp;
         }
 
-        protected void CheckVertexLoad()
+        protected void CheckVBODataLoad()
         {
             GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int size);
-            if (vertices.Length * sizeof(float) != size)
+            if (vboData.Length * sizeof(float) != size)
             {
                 throw new ApplicationException("Vertex data not loaded onto graphics card correctly");
             }
