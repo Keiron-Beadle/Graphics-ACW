@@ -15,10 +15,11 @@ namespace Labs.ACW
     public class ACWWindow : GameWindow
     {
         private Camera staticCam, dynCam, ActiveCam;
-        private int[] VAO_IDs = new int[6];
+        private int[] VAO_IDs = new int[7];
         private ShaderUtility shader;
         private Cube cube, ground, wallL, wallR, wallF;
         private Tetrahedron tet;
+        private Model werewolfModel;
         List<Objects.Object> entities = new List<Objects.Object>();
         List<Light> lights = new List<Light>();
 
@@ -111,6 +112,8 @@ namespace Labs.ACW
                 new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[4], cubeMat, textureFilePaths[0]);
             entities.Add(wallF);
 
+            werewolfModel = new Model(new Vector3(-0.4f, 0.3f, 1f), shader.ShaderProgramID, VAO_IDs[5], "Utility/Models/model.bin");
+            entities.Add(werewolfModel);
         }
 
         private void GenerateCameras()

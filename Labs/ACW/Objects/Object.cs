@@ -28,7 +28,7 @@ namespace Labs.ACW.Objects
         public Matrix4 LocalTransform => mLocalTransform;
         public bool Updatable;
 
-        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial) 
+        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial = new Material()) 
             : this(inPosition, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
 
         public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, string texFilePath = null)

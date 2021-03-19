@@ -52,6 +52,7 @@
     <Compile Include="ACW\Lights\Light.cs" />
     <Compile Include="ACW\Lights\PointLight.cs" />
     <Compile Include="ACW\Objects\Cube.cs" />
+    <Compile Include="ACW\Objects\Model.cs" />
     <Compile Include="ACW\Objects\Object.cs" />
     <Compile Include="ACW\Objects\Tetrahedron.cs" />
     <Compile Include="Challenge\ChallengeWindow.cs" />
