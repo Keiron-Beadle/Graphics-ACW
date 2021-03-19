@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Labs.ACW.ACWWindow;
 
 namespace Labs.ACW.Objects
 {
@@ -14,9 +15,10 @@ namespace Labs.ACW.Objects
         int vPositionLocation, vNormalLocation;
         private ModelUtility modelUtility;
 
-        public Model(Vector3 pPosition, int pShaderID, int pVAO_ID, string pFileLocation)
-            : base(pPosition, pShaderID, pVAO_ID)
+        public Model(Vector3 pPosition, int pShaderID, int pVAO_ID, string pFileLocation, Material pMaterial)
+            : base(pPosition, pShaderID, pVAO_ID, pMaterial)
         {
+            mLocalTransform *= Matrix4.CreateScale(0.2f) * Matrix4.CreateRotationY(-1.55f);
             GL.BindVertexArray(VAO_ID);
             GL.GenBuffers(VBO_IDs.Length, VBO_IDs);
             vPositionLocation = GL.GetAttribLocation(pShaderID, "vPosition");

@@ -94,25 +94,25 @@ namespace Labs.ACW
             cube.Updatable = true;
             entities.Add(cube);
 
-            //tet = new Tetrahedron(new Vector3(0f, 0f, 0f), new Vector3(0.25f, 0.25f, 0.25f),
-            //    new Vector3(0f, 0, 0), shader.ShaderProgramID, VAO_IDs[5], cubeMat);
-            // tet.Updatable = true;
-            // entities.Add(tet);
+            tet = new Tetrahedron(new Vector3(-0.7f, 0f, 0f), new Vector3(0.2f, 0.2f, 0.2f),
+                new Vector3(0f, 0, 0), shader.ShaderProgramID, VAO_IDs[2], cubeMat);
+            tet.Updatable = true;
+            entities.Add(tet);
 
 
             wallL = new Cube(new Vector3(-1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[2], cubeMat, textureFilePaths[0]);
+                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[3], cubeMat, textureFilePaths[0]);
             entities.Add(wallL);
 
             wallR = new Cube(new Vector3(1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                 new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[3], cubeMat, textureFilePaths[0]);
+                 new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[4], cubeMat, textureFilePaths[0]);
             entities.Add(wallR);
 
             wallF = new Cube(new Vector3(0f, -0.6f, -1f), new Vector3(7f, 3f, 0.3f),
-                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[4], cubeMat, textureFilePaths[0]);
+                new Vector3(0, 0, 0), shader.ShaderProgramID, VAO_IDs[5], cubeMat, textureFilePaths[0]);
             entities.Add(wallF);
 
-            werewolfModel = new Model(new Vector3(-0.4f, 0.3f, 1f), shader.ShaderProgramID, VAO_IDs[5], "Utility/Models/model.bin");
+            werewolfModel = new Model(new Vector3(-0.4f, 0.3f, 1f), shader.ShaderProgramID, VAO_IDs[6], "Utility/Models/model.bin", cubeMat);
             entities.Add(werewolfModel);
         }
 
@@ -125,10 +125,10 @@ namespace Labs.ACW
 
         private void GenerateLights()
         {
-            LightProperties p1 = MakeLightPropertes(new Vector4(-0.7f, 0.5f, -0.5f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.1804f, 0.85098f, 1f), new Vector3(0.09f, 0.425f, 0.5f));
+            LightProperties p1 = MakeLightPropertes(new Vector4(-0.7f, 0.5f, -0.5f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.1804f, 0.85098f, 1f), new Vector3(0.045f, 0.2125f, 0.25f));
             //LightProperties p2 = MakeLightPropertes(new Vector4(-0.1f, 0f, 2f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.7607f, 0.27843f, 1f), new Vector3(0.38f, 0.135f, 0.5f));
             LightProperties p2 = MakeLightPropertes(new Vector4(0f, 2f, -5f, 1), new Vector3(0f, 0f, 0f), new Vector3(0.2f, 0.2f, 0.2f), new Vector3(0f, 0, 0));
-            LightProperties p3 = MakeLightPropertes(new Vector4(0.5f, 0.4f, 0.8f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.8219f, 0.03635f, 0.62274f), new Vector3(0.11f, 0.12f, 0.49f));
+            LightProperties p3 = MakeLightPropertes(new Vector4(0.5f, 0.4f, 0.8f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.8219f, 0.03635f, 0.62274f), new Vector3(0.055f, 0.06f, 0.25f));
             lights.Add(new PointLight(p1, shader.ShaderProgramID));
             lights.Add(new PointLight(p2, shader.ShaderProgramID));
             lights.Add(new PointLight(p3, shader.ShaderProgramID));
