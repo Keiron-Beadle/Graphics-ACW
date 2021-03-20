@@ -89,7 +89,7 @@ namespace Labs.ACW
                 new Vector3(0.55f, 0.55f, 0.55f),
                 new Vector3(0.7f, 0.7f, 0.7f), 0.25f);
 
-            cube = new Cube(new Vector3(0.5f, 0.2f, -0.2f), new Vector3(0.8f, 0.8f, 0.8f),
+            cube = new Cube(new Vector3(0.5f, 0.25f, -0.2f), new Vector3(0.8f, 0.8f, 0.8f),
                 new Vector3(1.1f, -0.1f, 1f), shader.ShaderProgramID, VAO_IDs[1], cubeMat);
             cube.Updatable = true;
             entities.Add(cube);
