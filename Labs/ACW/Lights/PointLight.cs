@@ -22,12 +22,18 @@ namespace Labs.ACW.Lights
             int uLightPosition = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].Position");
             GL.Uniform4(uLightPosition, lightPos);
 
-            int uAmbientPosition = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].AmbientLight");
-            int uDiffusePosition = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].DiffuseLight");
-            int uSpecularPosition = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].SpecularLight");
-            GL.Uniform3(uAmbientPosition, properties.AmbientLight);
-            GL.Uniform3(uDiffusePosition, properties.DiffuseLight);
-            GL.Uniform3(uSpecularPosition, properties.SpecularLight);
+            int uAmbientLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].AmbientLight");
+            int uDiffuseLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].DiffuseLight");
+            int uSpecularLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].SpecularLight");
+            int uConstantLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].constant");
+            int uLinearLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].linear");
+            int uQuadraticLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].quadratic");
+            GL.Uniform3(uAmbientLocation, properties.AmbientLight);
+            GL.Uniform3(uDiffuseLocation, properties.DiffuseLight);
+            GL.Uniform3(uSpecularLocation, properties.SpecularLight);
+            GL.Uniform1(uConstantLocation, properties.Constant);
+            GL.Uniform1(uLinearLocation, properties.Linear);
+            GL.Uniform1(uQuadraticLocation, properties.Quadratic);
         }
     }
 }

@@ -54,6 +54,9 @@ namespace Labs.ACW
             public Vector3 AmbientLight;
             public Vector3 DiffuseLight;
             public Vector3 SpecularLight;
+            public float Constant;
+            public float Linear;
+            public float Quadratic;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -125,10 +128,13 @@ namespace Labs.ACW
 
         private void GenerateLights()
         {
-            LightProperties p1 = MakeLightPropertes(new Vector4(-0.7f, 0.5f, -0.5f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.1804f, 0.85098f, 1f), new Vector3(0.045f, 0.2125f, 0.25f));
-            //LightProperties p2 = MakeLightPropertes(new Vector4(-0.1f, 0f, 2f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.7607f, 0.27843f, 1f), new Vector3(0.38f, 0.135f, 0.5f));
-            LightProperties p2 = MakeLightPropertes(new Vector4(0f, 2f, -5f, 1), new Vector3(0f, 0f, 0f), new Vector3(0.2f, 0.2f, 0.2f), new Vector3(0f, 0, 0));
-            LightProperties p3 = MakeLightPropertes(new Vector4(0.5f, 0.4f, 0.8f, 1), new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.8219f, 0.03635f, 0.62274f), new Vector3(0.055f, 0.06f, 0.25f));
+            LightProperties p1 = MakeLightPropertes(new Vector4(-0.7f, 0.5f, -0.5f, 1), new Vector3(0.04f, 0.04f, 0.04f), 
+                new Vector3(0.1804f, 0.85098f, 1f), new Vector3(0.045f, 0.2125f, 0.25f));
+            LightProperties p2 = MakeLightPropertes(new Vector4(0f, 2f, -5f, 1), new Vector3(0f, 0f, 0f), 
+                new Vector3(0.2f, 0.2f, 0.2f), new Vector3(0f, 0, 0));
+            LightProperties p3 = MakeLightPropertes(new Vector4(0.5f, 0.4f, 0.8f, 1), 
+                new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.8219f, 0.03635f, 0.62274f), 
+                new Vector3(0.055f, 0.06f, 0.25f));
             lights.Add(new PointLight(p1, shader.ShaderProgramID));
             lights.Add(new PointLight(p2, shader.ShaderProgramID));
             lights.Add(new PointLight(p3, shader.ShaderProgramID));
@@ -183,14 +189,18 @@ namespace Labs.ACW
             SwapBuffers();
         }
 
-        private LightProperties MakeLightPropertes(Vector4 pPosition, Vector3 pAmbientLight, Vector3 pDiffuseLight, Vector3 pSpecularLight)
+        private LightProperties MakeLightPropertes(Vector4 pPosition, Vector3 pAmbientLight, 
+            Vector3 pDiffuseLight, Vector3 pSpecularLight)
         {
             return new LightProperties
             {
                 Position = pPosition,
                 AmbientLight = pAmbientLight,
                 DiffuseLight = pDiffuseLight,
-                SpecularLight = pSpecularLight
+                SpecularLight = pSpecularLight,
+                Constant = 1.0f,
+                Linear = 0.35f,
+                Quadratic = 0.84f
             };
         }
 
