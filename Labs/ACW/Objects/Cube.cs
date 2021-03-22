@@ -17,13 +17,8 @@ namespace Labs.ACW.Objects
             : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial, texFilePath)
         {
             vboData = CreateVBOData();
-            if (textureFilePath != null)
-                LoadTexture();
             int vPositionLocation = GL.GetAttribLocation(shaderID, "vPosition");
             int vNormalLocation = GL.GetAttribLocation(shaderID, "vNormal");
-            int vTexCoordLocation = GL.GetAttribLocation(shaderID, "vTexCoords");
-            int uTextureSamplerLocation = GL.GetUniformLocation(shaderID, "uTextureSampler");
-            GL.Uniform1(uTextureSamplerLocation, 0);
             GL.GenBuffers(VBO_IDs.Length, VBO_IDs);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO_IDs[0]);
 
@@ -40,6 +35,10 @@ namespace Labs.ACW.Objects
 
             if (textureFilePath != null)
             {
+                LoadTexture();
+                int vTexCoordLocation = GL.GetAttribLocation(shaderID, "vTexCoords");
+                int uTextureSamplerLocation = GL.GetUniformLocation(shaderID, "uTextureSampler");
+                GL.Uniform1(uTextureSamplerLocation, 0);
                 GL.VertexAttribPointer(vTexCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
                 GL.EnableVertexAttribArray(vTexCoordLocation);
             }

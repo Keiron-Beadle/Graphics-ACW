@@ -24,14 +24,13 @@ namespace Labs.ACW.Lights
             public Vector4 SpotLightDirection;
         }
 
-        protected int shaderProgramID;
-        protected Vector4 lightPosition;
-        protected LightProperties properties;
+        private int[] shaderIDs;
+        private LightProperties properties;
 
-        public Light(LightProperties pProperties, int pShaderID)
+        public Light(LightProperties pProperties, int[] pShaderIDs)
         {
             properties = pProperties;
-            shaderProgramID = pShaderID;
+            shaderIDs = pShaderIDs;
         }
         
         public void Update(Camera pActiveCam, int pIndex)
@@ -41,27 +40,30 @@ namespace Labs.ACW.Lights
 
         protected void UpdateULight(Matrix4 pViewMat, int pIndex)
         {
-            Vector4 lightPos = Vector4.Transform(properties.Position, pViewMat);
-            Vector4 spotLightDirection = Vector4.Transform(properties.SpotLightDirection, pViewMat);
-            int uLightPosition = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].Position");
-            GL.Uniform4(uLightPosition, lightPos);
+            for (int i = 0; i < shaderIDs.Length; i++)
+            {
+                Vector4 lightPos = Vector4.Transform(properties.Position, pViewMat);
+                Vector4 spotLightDirection = Vector4.Transform(properties.SpotLightDirection, pViewMat);
+                int uLightPosition = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].Position");
+                GL.Uniform4(uLightPosition, lightPos);
 
-            int uAmbientLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].AmbientLight");
-            int uDiffuseLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].DiffuseLight");
-            int uSpecularLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].SpecularLight");
-            int uConstantLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].constant");
-            int uLinearLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].linear");
-            int uQuadraticLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].quadratic");
-            int uCutoffLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].cutoff");
-            int uSpotDirLocation = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].spotLightDirection");
-            GL.Uniform3(uAmbientLocation, properties.AmbientLight);
-            GL.Uniform3(uDiffuseLocation, properties.DiffuseLight);
-            GL.Uniform3(uSpecularLocation, properties.SpecularLight);
-            GL.Uniform1(uConstantLocation, properties.Constant);
-            GL.Uniform1(uLinearLocation, properties.Linear);
-            GL.Uniform1(uQuadraticLocation, properties.Quadratic);
-            GL.Uniform1(uCutoffLocation, properties.Cutoff);
-            GL.Uniform4(uSpotDirLocation, spotLightDirection);
+                int uAmbientLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].AmbientLight");
+                int uDiffuseLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].DiffuseLight");
+                int uSpecularLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].SpecularLight");
+                int uConstantLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].constant");
+                int uLinearLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].linear");
+                int uQuadraticLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].quadratic");
+                int uCutoffLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].cutoff");
+                int uSpotDirLocation = GL.GetUniformLocation(shaderIDs[i], "uLight[" + pIndex + "].spotLightDirection");
+                GL.Uniform3(uAmbientLocation, properties.AmbientLight);
+                GL.Uniform3(uDiffuseLocation, properties.DiffuseLight);
+                GL.Uniform3(uSpecularLocation, properties.SpecularLight);
+                GL.Uniform1(uConstantLocation, properties.Constant);
+                GL.Uniform1(uLinearLocation, properties.Linear);
+                GL.Uniform1(uQuadraticLocation, properties.Quadratic);
+                GL.Uniform1(uCutoffLocation, properties.Cutoff);
+                GL.Uniform4(uSpotDirLocation, spotLightDirection);
+            }
         }
 
         public static LightProperties MakeLightPropertes(Vector4 pPosition, Vector3 pAmbientLight,

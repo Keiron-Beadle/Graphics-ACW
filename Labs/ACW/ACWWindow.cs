@@ -22,7 +22,8 @@ namespace Labs.ACW
         private Cube cube, ground, wallL, wallR, wallF;
         private Tetrahedron tet;
         private Model werewolfModel;
-        List<Objects.Object> entities = new List<Objects.Object>();
+        List<Objects.Object> nonTexturedObjects = new List<Objects.Object>();
+        List<Objects.Object> texturedObjects = new List<Objects.Object>();
         List<Light> lights = new List<Light>();
 
         private string[] textureFilePaths = { "ACW/Resources/woodTex.jpg" };
@@ -76,41 +77,41 @@ namespace Labs.ACW
         private void GenerateEntities()
         {
             Material groundMat = MakeMaterial(new Vector3(0f, 0.05f, 0f),
-            new Vector3(0.3f, 0.3f, 0.3f),
-                new Vector3(0.05f, 0.05f, 0.05f), 0.078125f);
-            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(15f, 0.1f, 15f), Vector3.Zero, shader2.ShaderProgramID, VAO_IDs[0], groundMat);
-            entities.Add(ground);
-
+                new Vector3(0.3f, 0.3f, 0.3f),
+                    new Vector3(0.05f, 0.05f, 0.05f), 0.078125f);
 
             Material cubeMat = MakeMaterial(new Vector3(0f, 0f, 0f),
                 new Vector3(0.55f, 0.55f, 0.55f),
-                new Vector3(0.7f, 0.7f, 0.7f), 0.25f);
+                    new Vector3(0.7f, 0.7f, 0.7f), 0.25f);
+            GL.UseProgram(shaderIDs[1]);
+            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(15f, 0.1f, 15f), Vector3.Zero, shaderIDs[1], VAO_IDs[0], groundMat);
+            nonTexturedObjects.Add(ground);
 
             cube = new Cube(new Vector3(0.5f, 0.25f, -0.2f), new Vector3(0.8f, 0.8f, 0.8f),
-                new Vector3(1.1f, -0.1f, 1f), shader2.ShaderProgramID, VAO_IDs[1], cubeMat);
+                new Vector3(1.1f, -0.1f, 1f), shaderIDs[1], VAO_IDs[1], cubeMat);
             cube.Updatable = true;
-            entities.Add(cube);
+            nonTexturedObjects.Add(cube);
 
             tet = new Tetrahedron(new Vector3(-0.7f, 0f, 0f), new Vector3(0.2f, 0.2f, 0.2f),
-                new Vector3(0f, 0, 0), shader2.ShaderProgramID, VAO_IDs[2], cubeMat);
+                new Vector3(0f, 0, 0), shaderIDs[1], VAO_IDs[2], cubeMat);
             tet.Updatable = true;
-            entities.Add(tet);
+            nonTexturedObjects.Add(tet);
 
+            werewolfModel = new Model(new Vector3(-0.4f, 0.3f, 1f), shaderIDs[1], VAO_IDs[3], "Utility/Models/model.bin", cubeMat);
+            nonTexturedObjects.Add(werewolfModel);
 
+            GL.UseProgram(shaderIDs[0]);
             wallL = new Cube(new Vector3(-1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                new Vector3(0, 0, 0), shader2.ShaderProgramID, VAO_IDs[3], cubeMat, textureFilePaths[0]);
-            entities.Add(wallL);
+                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[4], cubeMat, textureFilePaths[0]);
+            texturedObjects.Add(wallL);
 
             wallR = new Cube(new Vector3(1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                 new Vector3(0, 0, 0), shader2.ShaderProgramID, VAO_IDs[4], cubeMat, textureFilePaths[0]);
-            entities.Add(wallR);
+                 new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[5], cubeMat, textureFilePaths[0]);
+            texturedObjects.Add(wallR);
 
             wallF = new Cube(new Vector3(0f, -0.6f, -1f), new Vector3(7f, 3f, 0.3f),
-                new Vector3(0, 0, 0), shader2.ShaderProgramID, VAO_IDs[5], cubeMat, textureFilePaths[0]);
-            entities.Add(wallF);
-
-            werewolfModel = new Model(new Vector3(-0.4f, 0.3f, 1f), shader2.ShaderProgramID, VAO_IDs[6], "Utility/Models/model.bin", cubeMat);
-            entities.Add(werewolfModel);
+                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[6], cubeMat, textureFilePaths[0]);
+            texturedObjects.Add(wallF);
         }
 
         private void GenerateCameras()
@@ -131,10 +132,10 @@ namespace Labs.ACW
                 new Vector3(0.055f, 0.06f, 0.25f));
             LightProperties spot = MakeLightPropertes(new Vector4(-0.1f,1,0,1), new Vector3(0.01f, 0.01f, 0.01f), 
                 new Vector3(1f, 1f, 1f), new Vector3(0.01f,0.01f,0.01f), (float)Math.Cos(0.4187f), new Vector4(0,-1,0,0));
-            lights.Add(new Light(p1, shader2.ShaderProgramID));
-            lights.Add(new Light(p2, shader2.ShaderProgramID));
-            lights.Add(new Light(p3, shader2.ShaderProgramID));
-            lights.Add(new Light(spot, shader2.ShaderProgramID));
+            lights.Add(new Light(p1, shaderIDs));
+            lights.Add(new Light(p2, shaderIDs));
+            lights.Add(new Light(p3, shaderIDs));
+            lights.Add(new Light(spot, shaderIDs));
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
@@ -155,11 +156,25 @@ namespace Labs.ACW
             staticCam.Update();
             if (dynCam.Active) { ActiveCam = dynCam; }
             else { ActiveCam = staticCam; }
-            for (int i = 0; i < lights.Count; i++) { lights[i].Update(ActiveCam, i); }
-            for (int i = 0; i < entities.Count; i++) 
+            for (int i = 0; i < lights.Count; i++) 
             {
-                if (entities[i].Updatable)
-                    entities[i].Update(ActiveCam, e.Time);
+                for (int j = 0; j < shaderIDs.Length; j++)
+                {
+                    GL.UseProgram(shaderIDs[j]);
+                    lights[i].Update(ActiveCam, i);
+                }
+            }
+            GL.UseProgram(shaderIDs[1]);
+            for (int i = 0; i < nonTexturedObjects.Count; i++)
+            {
+                if (nonTexturedObjects[i].Updatable)
+                    nonTexturedObjects[i].Update(ActiveCam, e.Time);
+            }
+            GL.UseProgram(shaderIDs[0]);
+            for (int i = nonTexturedObjects.Count; i < texturedObjects.Count + nonTexturedObjects.Count; i++)
+            {
+                if (texturedObjects[i - nonTexturedObjects.Count].Updatable)
+                    texturedObjects[i - nonTexturedObjects.Count].Update(ActiveCam, e.Time);
             }
 
             for (int i = 0; i < 900000; i++)
@@ -174,12 +189,19 @@ namespace Labs.ACW
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            GL.UseProgram(shader2.ShaderProgramID);
-            for (int i = 0; i < entities.Count; i++)
+            GL.UseProgram(shaderIDs[1]);
+            for (int i = 0; i < nonTexturedObjects.Count; i++)
             {
                 GL.BindVertexArray(VAO_IDs[i]);
-                entities[i].RenderUpdate();
-                entities[i].Draw();
+                nonTexturedObjects[i].RenderUpdate();
+                nonTexturedObjects[i].Draw();
+            }
+            GL.UseProgram(shaderIDs[0]);
+            for (int i = nonTexturedObjects.Count; i < texturedObjects.Count + nonTexturedObjects.Count; i++)
+            {
+                GL.BindVertexArray(VAO_IDs[i]);
+                texturedObjects[i - nonTexturedObjects.Count].RenderUpdate();
+                texturedObjects[i - nonTexturedObjects.Count].Draw();
             }
 
             GL.BindVertexArray(0);
@@ -201,10 +223,10 @@ namespace Labs.ACW
         {
             base.OnResize(e);
             GL.Viewport(this.ClientRectangle);
-            if (shader != null)
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(1, (float)Width / Height, 0.01f, 50f);
+            for (int i = 0; i < shaderIDs.Length; i++)
             {
-                int uProjectionLocation = GL.GetUniformLocation(shader2.ShaderProgramID, "uProjection");
-                Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(1, (float)Width / Height, 0.01f, 50f);
+                int uProjectionLocation = GL.GetUniformLocation(shaderIDs[i], "uProjection");
                 GL.UniformMatrix4(uProjectionLocation, true, ref projection);
             }
         }
@@ -214,8 +236,10 @@ namespace Labs.ACW
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
-            for (int i = 0; i < entities.Count; i++) { entities[i].Dispose(); }
+            for (int i = 0; i < nonTexturedObjects.Count; i++) { nonTexturedObjects[i].Dispose(); }
+            for (int i = 0; i < texturedObjects.Count; i++) { texturedObjects[i].Dispose(); }
             GL.DeleteVertexArrays(VAO_IDs.Length, VAO_IDs);
+            shader.Delete();
             shader2.Delete();
             base.OnUnload(e);
         }

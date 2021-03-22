@@ -53,6 +53,7 @@ namespace Labs.ACW
             if (!Active) { return; }
             for (int i = 0; i < shaderIDs.Length; i++)
             {
+                GL.UseProgram(shaderIDs[i]);
                 uViewLocation = GL.GetUniformLocation(shaderIDs[i], "uView");
                 GL.UniformMatrix4(uViewLocation, true, ref viewMat);
             }
@@ -105,6 +106,7 @@ namespace Labs.ACW
             viewMat *= temp;
             for (int i = 0; i < shaderIDs.Length; i++)
             {
+              //  GL.UseProgram(shaderIDs[i]);
                 uViewLocation = GL.GetUniformLocation(shaderIDs[i], "uView");
                 GL.UniformMatrix4(uViewLocation, true, ref viewMat);
                 UpdateUEyeLocation(shaderIDs[i]);

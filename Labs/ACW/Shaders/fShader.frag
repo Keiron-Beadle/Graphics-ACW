@@ -51,7 +51,6 @@ void RunPointLight(int i, vec4 eyeDir){
 		vec3 diffuseTot = uLight[i].DiffuseLight * attenuation * uMaterial.DiffuseReflectivity * diffuseFactor * texColour.xyz;
 		vec3 specularTot = uLight[i].SpecularLight * attenuation * uMaterial.SpecularReflectivity * specularFactor;
 		FragColour = FragColour + vec4(ambientTot + diffuseTot + specularTot,1);
-
 }
 
 void RunSpotLight(int i, vec4 eyeDir){
