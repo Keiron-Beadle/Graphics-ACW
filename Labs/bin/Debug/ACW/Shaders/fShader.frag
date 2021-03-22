@@ -17,9 +17,11 @@ struct LightProperties {
 	float constant;
 	float linear;
 	float quadratic;
+	vec3 spotLightDirection;
+	float cutoff;
 };
 
-uniform LightProperties uLight[3];
+uniform LightProperties uLight[4];
 
 struct MaterialProperties {
 	vec3 AmbientReflectivity;
@@ -30,11 +32,7 @@ struct MaterialProperties {
 
 uniform MaterialProperties uMaterial;
 
-void main()
-{
-	vec4 eyeDir = normalize(uEyePosition - oSurfacePosition);
-	for (int i = 0; i < 3; ++i)
-	{
+void RunPointLight(int i, vec4 eyeDir){
 		vec4 texColour = texture(uTextureSampler, oTexCoords);
 
 		vec4 lightDir = normalize(uLight[i].Position - oSurfacePosition);
@@ -47,13 +45,46 @@ void main()
 		vec3 lightPos = vec3(uLight[i].Position);
 		vec3 surfacePos = vec3(oSurfacePosition);
 		float dist = length(lightPos - surfacePos);
-		//float attenuation = 1.0 / (uLight[i].constant + uLight[i].linear * dist + uLight[i].quadratic * (dist * dist));
 		float attenuation = 1.0 / (uLight[i].constant + (uLight[i].linear * dist) + (uLight[i].quadratic * (dist * dist)));
 		
 		vec3 ambientTot = uLight[i].AmbientLight * uMaterial.AmbientReflectivity * texColour.xyz;
 		vec3 diffuseTot = uLight[i].DiffuseLight * attenuation * uMaterial.DiffuseReflectivity * diffuseFactor * texColour.xyz;
 		vec3 specularTot = uLight[i].SpecularLight * attenuation * uMaterial.SpecularReflectivity * specularFactor;
 		FragColour = FragColour + vec4(ambientTot + diffuseTot + specularTot,1);
+
+}
+
+void RunSpotLight(int i, vec4 eyeDir){
+	vec4 lightDir = normalize(uLight[i].Position - oSurfacePosition);
+
+	float theta = dot(lightDir.xyz, normalize(-uLight[i].spotLightDirection));
+	vec4 texColour = texture(uTextureSampler, oTexCoords);
+
+	if (theta > uLight[i].cutoff){
+	    //FragColour  = vec4(1,1,1,1);
+		RunPointLight(i, eyeDir);
+	}
+	else{
+		//FragColour = vec4(1,0,1,1);
+		FragColour = FragColour + vec4(uLight[i].AmbientLight * uMaterial.AmbientReflectivity * texColour.xyz,1);
+	}
+}
+
+void main()
+{
+	vec4 eyeDir = normalize(uEyePosition - oSurfacePosition);
+	for (int i = 0; i < 4; ++i)
+	{
+		if (uLight[i].cutoff > 0.0)
+		{
+			//FragColour = vec4(1,0,0,1);
+			RunSpotLight(i, eyeDir);
+		}
+		else
+		{
+			//FragColour = vec4(1,1,1,1);
+			RunPointLight(i, eyeDir);
+		}
 
 //		FragColour = FragColour + vec4((uLight[i].AmbientLight * uMaterial.AmbientReflectivity * texColour.xyz) +
 //				(uLight[i].DiffuseLight * attenuation * uMaterial.DiffuseReflectivity * diffuseFactor * texColour.xyz) +

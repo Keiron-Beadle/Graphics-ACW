@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using static Labs.ACW.Lights.Light;
 
 namespace Labs.ACW
 {
@@ -46,17 +47,6 @@ namespace Labs.ACW
             public Vector3 DiffuseRef;
             public Vector3 SpecRef;
             public float Shininess;
-        }
-
-        public struct LightProperties
-        {
-            public Vector4 Position;
-            public Vector3 AmbientLight;
-            public Vector3 DiffuseLight;
-            public Vector3 SpecularLight;
-            public float Constant;
-            public float Linear;
-            public float Quadratic;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -135,9 +125,12 @@ namespace Labs.ACW
             LightProperties p3 = MakeLightPropertes(new Vector4(0.5f, 0.4f, 0.8f, 1), 
                 new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.8219f, 0.03635f, 0.62274f), 
                 new Vector3(0.055f, 0.06f, 0.25f));
-            lights.Add(new PointLight(p1, shader.ShaderProgramID));
-            lights.Add(new PointLight(p2, shader.ShaderProgramID));
-            lights.Add(new PointLight(p3, shader.ShaderProgramID));
+            LightProperties spot = MakeLightPropertes(new Vector4(-0.1f,1,0,1), new Vector3(0.01f, 0.01f, 0.01f), 
+                new Vector3(1f, 1f, 1f), new Vector3(0.01f,0.01f,0.01f), (float)Math.Cos(0.4187f), new Vector3(0,-1,0));
+            lights.Add(new Light(p1, shader.ShaderProgramID));
+            lights.Add(new Light(p2, shader.ShaderProgramID));
+            lights.Add(new Light(p3, shader.ShaderProgramID));
+            lights.Add(new Light(spot, shader.ShaderProgramID));
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
@@ -187,21 +180,6 @@ namespace Labs.ACW
 
             GL.BindVertexArray(0);
             SwapBuffers();
-        }
-
-        private LightProperties MakeLightPropertes(Vector4 pPosition, Vector3 pAmbientLight, 
-            Vector3 pDiffuseLight, Vector3 pSpecularLight)
-        {
-            return new LightProperties
-            {
-                Position = pPosition,
-                AmbientLight = pAmbientLight,
-                DiffuseLight = pDiffuseLight,
-                SpecularLight = pSpecularLight,
-                Constant = 1.0f,
-                Linear = 0.35f,
-                Quadratic = 0.84f
-            };
         }
 
         private Material MakeMaterial(Vector3 pAmbientRef, Vector3 pDiffuseRef, Vector3 pSpecRef, float pShininess)

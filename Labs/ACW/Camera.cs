@@ -21,10 +21,9 @@ namespace Labs.ACW
         private const float rotSpd = 0.025f;
         public Matrix4 ProjectionMatrix { get { return projMat; } }
         public Matrix4 ViewMatrix { get { return viewMat; } }
-
+        public Vector4 Position { get { return eyePosition; } }
 
         public void SetViewMatrix(Matrix4 mat) { viewMat = mat; }
-
 
         public Camera(Vector3 inPosition, float clientWidth, float clientHeight, int shaderProgramID)
         : this (inPosition, Vector3.Zero,clientWidth, clientHeight, shaderProgramID) { }

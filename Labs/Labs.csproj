@@ -50,8 +50,6 @@
     <Compile Include="ACW\ACWWindow.cs" />
     <Compile Include="ACW\Camera.cs" />
     <Compile Include="ACW\Lights\Light.cs" />
-    <Compile Include="ACW\Lights\PointLight.cs" />
-    <Compile Include="ACW\Lights\SpotLight.cs" />
     <Compile Include="ACW\Objects\Cube.cs" />
     <Compile Include="ACW\Objects\Model.cs" />
     <Compile Include="ACW\Objects\Object.cs" />
