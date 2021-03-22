@@ -15,7 +15,8 @@ namespace Labs.ACW
         private Matrix4 viewMat;
         private Matrix4 projMat;
         private Vector4 eyePosition;
-        int uViewLocation, shaderProgramID, uProjectionLocation;
+        int uViewLocation, uProjectionLocation;
+        int[] shaderIDs;
         public bool Active { get; set; }
         private const float moveSpd = 0.05f;
         private const float rotSpd = 0.025f;
@@ -25,28 +26,36 @@ namespace Labs.ACW
 
         public void SetViewMatrix(Matrix4 mat) { viewMat = mat; }
 
-        public Camera(Vector3 inPosition, float clientWidth, float clientHeight, int shaderProgramID)
-        : this (inPosition, Vector3.Zero,clientWidth, clientHeight, shaderProgramID) { }
+        public Camera(Vector3 inPosition, float clientWidth, float clientHeight, int[] shaderIDs)
+        : this (inPosition, Vector3.Zero,clientWidth, clientHeight, shaderIDs) { }
 
-        public Camera(Vector3 inPosition, Vector3 pLookAt, float clientWidth, float clientHeight, int shaderProgramID)
+        public Camera(Vector3 inPosition, Vector3 pLookAt, float clientWidth, float clientHeight, int[] pShaderIDs)
         {
-            this.shaderProgramID = shaderProgramID;
+            shaderIDs = pShaderIDs;
             //eyePosition = new Vector4(inPosition,1);
             Vector3 lookAt = pLookAt;
             projMat = Matrix4.CreatePerspectiveFieldOfView(1, clientWidth / clientHeight, 0.01f, 50f);
             viewMat = Matrix4.LookAt(inPosition, lookAt, Vector3.UnitY);
             //viewMat = Matrix4.Identity;
-            uViewLocation = GL.GetUniformLocation(shaderProgramID, "uView");
-            //GL.UniformMatrix4(uViewLocation, true, ref viewMat);
-            uProjectionLocation = GL.GetUniformLocation(shaderProgramID, "uProjection");
-            GL.UniformMatrix4(uProjectionLocation, true, ref projMat);
-            UpdateUEyeLocation();
+            for (int i = 0; i < shaderIDs.Length; i++)
+            {
+                GL.UseProgram(shaderIDs[i]);
+                uViewLocation = GL.GetUniformLocation(shaderIDs[i], "uView");
+                //GL.UniformMatrix4(uViewLocation, true, ref viewMat);
+                uProjectionLocation = GL.GetUniformLocation(shaderIDs[i], "uProjection");
+                GL.UniformMatrix4(uProjectionLocation, true, ref projMat);
+                UpdateUEyeLocation(shaderIDs[i]);
+            }
         }
 
         public void Update()
         {
             if (!Active) { return; }
-            GL.UniformMatrix4(uViewLocation, true, ref viewMat);
+            for (int i = 0; i < shaderIDs.Length; i++)
+            {
+                uViewLocation = GL.GetUniformLocation(shaderIDs[i], "uView");
+                GL.UniformMatrix4(uViewLocation, true, ref viewMat);
+            }
         }
 
         public void OnKeyDown(KeyboardKeyEventArgs e)
@@ -94,11 +103,15 @@ namespace Labs.ACW
                 temp *= Matrix4.CreateTranslation(0.0f, moveSpd, 0.0f);
             }
             viewMat *= temp;
-            GL.UniformMatrix4(uViewLocation, true, ref viewMat);
-            UpdateUEyeLocation();
+            for (int i = 0; i < shaderIDs.Length; i++)
+            {
+                uViewLocation = GL.GetUniformLocation(shaderIDs[i], "uView");
+                GL.UniformMatrix4(uViewLocation, true, ref viewMat);
+                UpdateUEyeLocation(shaderIDs[i]);
+            }
         }
 
-        private void UpdateUEyeLocation()
+        private void UpdateUEyeLocation(int shaderProgramID)
         {
             eyePosition = new Vector4(viewMat.ExtractTranslation(), 1);
             int eyeLocation = GL.GetUniformLocation(shaderProgramID, "uEyePosition");

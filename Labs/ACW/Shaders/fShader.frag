@@ -86,8 +86,5 @@ void main()
 			RunPointLight(i, eyeDir);
 		}
 
-//		FragColour = FragColour + vec4((uLight[i].AmbientLight * uMaterial.AmbientReflectivity * texColour.xyz) +
-//				(uLight[i].DiffuseLight * attenuation * uMaterial.DiffuseReflectivity * diffuseFactor * texColour.xyz) +
-//				(uLight[i].SpecularLight * attenuation * uMaterial.SpecularReflectivity * specularFactor), 1);
 	}
 }
