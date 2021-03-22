@@ -21,7 +21,7 @@ namespace Labs.ACW.Lights
             public float Linear;
             public float Quadratic;
             public float Cutoff;
-            public Vector3 SpotLightDirection;
+            public Vector4 SpotLightDirection;
         }
 
         protected int shaderProgramID;
@@ -42,6 +42,7 @@ namespace Labs.ACW.Lights
         protected void UpdateULight(Matrix4 pViewMat, int pIndex)
         {
             Vector4 lightPos = Vector4.Transform(properties.Position, pViewMat);
+            Vector4 spotLightDirection = Vector4.Transform(properties.SpotLightDirection, pViewMat);
             int uLightPosition = GL.GetUniformLocation(shaderProgramID, "uLight[" + pIndex + "].Position");
             GL.Uniform4(uLightPosition, lightPos);
 
@@ -60,7 +61,7 @@ namespace Labs.ACW.Lights
             GL.Uniform1(uLinearLocation, properties.Linear);
             GL.Uniform1(uQuadraticLocation, properties.Quadratic);
             GL.Uniform1(uCutoffLocation, properties.Cutoff);
-            GL.Uniform3(uSpotDirLocation, properties.SpotLightDirection);
+            GL.Uniform4(uSpotDirLocation, spotLightDirection);
         }
 
         public static LightProperties MakeLightPropertes(Vector4 pPosition, Vector3 pAmbientLight,
@@ -76,12 +77,12 @@ namespace Labs.ACW.Lights
                 Linear = 0.35f,
                 Quadratic = 0.84f,
                 Cutoff = -1,
-                SpotLightDirection = Vector3.Zero
+                SpotLightDirection = Vector4.Zero
             };
         }
 
         public static LightProperties MakeLightPropertes(Vector4 pPosition, Vector3 pAmbientLight,
-            Vector3 pDiffuseLight, Vector3 pSpecularLight, float pCutOff, Vector3 pSpotDir)
+            Vector3 pDiffuseLight, Vector3 pSpecularLight, float pCutOff, Vector4 pSpotDir)
         {
             return new LightProperties
             {

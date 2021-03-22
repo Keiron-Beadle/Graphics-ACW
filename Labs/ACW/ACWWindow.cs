@@ -126,7 +126,7 @@ namespace Labs.ACW
                 new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.8219f, 0.03635f, 0.62274f), 
                 new Vector3(0.055f, 0.06f, 0.25f));
             LightProperties spot = MakeLightPropertes(new Vector4(-0.1f,1,0,1), new Vector3(0.01f, 0.01f, 0.01f), 
-                new Vector3(1f, 1f, 1f), new Vector3(0.01f,0.01f,0.01f), (float)Math.Cos(0.4187f), new Vector3(0,-1,0));
+                new Vector3(1f, 1f, 1f), new Vector3(0.01f,0.01f,0.01f), (float)Math.Cos(0.4187f), new Vector4(0,-1,0,0));
             lights.Add(new Light(p1, shader.ShaderProgramID));
             lights.Add(new Light(p2, shader.ShaderProgramID));
             lights.Add(new Light(p3, shader.ShaderProgramID));

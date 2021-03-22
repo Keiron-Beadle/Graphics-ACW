@@ -17,7 +17,7 @@ struct LightProperties {
 	float constant;
 	float linear;
 	float quadratic;
-	vec3 spotLightDirection;
+	vec4 spotLightDirection;
 	float cutoff;
 };
 
@@ -57,7 +57,7 @@ void RunPointLight(int i, vec4 eyeDir){
 void RunSpotLight(int i, vec4 eyeDir){
 	vec4 lightDir = normalize(uLight[i].Position - oSurfacePosition);
 
-	float theta = dot(lightDir.xyz, normalize(-uLight[i].spotLightDirection));
+	float theta = dot(lightDir, normalize(-uLight[i].spotLightDirection));
 	vec4 texColour = texture(uTextureSampler, oTexCoords);
 
 	if (theta > uLight[i].cutoff){
