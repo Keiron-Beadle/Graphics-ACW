@@ -76,6 +76,7 @@ namespace Labs.ACW
 
         private void GenerateEntities()
         {
+            #region Materials
             Material groundMat = MakeMaterial(new Vector3(0f, 0.05f, 0f),
                 new Vector3(0.3f, 0.3f, 0.3f),
                     new Vector3(0.05f, 0.05f, 0.05f), 0.078125f);
@@ -83,6 +84,9 @@ namespace Labs.ACW
             Material cubeMat = MakeMaterial(new Vector3(0f, 0f, 0f),
                 new Vector3(0.55f, 0.55f, 0.55f),
                     new Vector3(0.7f, 0.7f, 0.7f), 0.25f);
+            #endregion
+
+            #region NonTexturedObjects
             GL.UseProgram(shaderIDs[1]);
             ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(15f, 0.1f, 15f), Vector3.Zero, shaderIDs[1], VAO_IDs[0], groundMat);
             nonTexturedObjects.Add(ground);
@@ -99,7 +103,9 @@ namespace Labs.ACW
 
             werewolfModel = new Model(new Vector3(-0.4f, 0.3f, 1f), shaderIDs[1], VAO_IDs[3], "Utility/Models/model.bin", cubeMat);
             nonTexturedObjects.Add(werewolfModel);
+            #endregion
 
+            #region TexturedObjects
             GL.UseProgram(shaderIDs[0]);
             wallL = new Cube(new Vector3(-1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
                 new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[4], cubeMat, textureFilePaths[0]);
@@ -112,6 +118,7 @@ namespace Labs.ACW
             wallF = new Cube(new Vector3(0f, -0.6f, -1f), new Vector3(7f, 3f, 0.3f),
                 new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[6], cubeMat, textureFilePaths[0]);
             texturedObjects.Add(wallF);
+            #endregion
         }
 
         private void GenerateCameras()
@@ -164,13 +171,11 @@ namespace Labs.ACW
                     lights[i].Update(ActiveCam, i);
                 }
             }
-            GL.UseProgram(shaderIDs[1]);
             for (int i = 0; i < nonTexturedObjects.Count; i++)
             {
                 if (nonTexturedObjects[i].Updatable)
                     nonTexturedObjects[i].Update(ActiveCam, e.Time);
             }
-            GL.UseProgram(shaderIDs[0]);
             for (int i = nonTexturedObjects.Count; i < texturedObjects.Count + nonTexturedObjects.Count; i++)
             {
                 if (texturedObjects[i - nonTexturedObjects.Count].Updatable)
