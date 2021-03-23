@@ -53,6 +53,7 @@
     <Compile Include="ACW\Objects\Cube.cs" />
     <Compile Include="ACW\Objects\Model.cs" />
     <Compile Include="ACW\Objects\Object.cs" />
+    <Compile Include="ACW\Objects\OrbitSphere.cs" />
     <Compile Include="ACW\Objects\Tetrahedron.cs" />
     <Compile Include="Challenge\ChallengeWindow.cs" />
     <Compile Include="Lab1\Lab1Window.cs" />

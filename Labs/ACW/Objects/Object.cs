@@ -16,6 +16,7 @@ namespace Labs.ACW.Objects
     {
         protected int shaderID, VAO_ID, texture_ID = 0;
         protected string textureFilePath;
+        protected Vector3 scale, rotation;
         protected BitmapData TextureData;
         protected int[] VBO_IDs;
         protected float[] vboData;
@@ -31,8 +32,12 @@ namespace Labs.ACW.Objects
         public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial = new Material()) 
             : this(inPosition, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
 
-        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, string texFilePath = null)
+        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, 
+            int vao_ID, Material pMaterial, string texFilePath = null, Object pParent = null)
         {
+            scale = inScale;
+            rotation = inRotation;
+            parent = pParent;
             textureFilePath = texFilePath;
             Updatable = false;
             position = inPosition;
@@ -43,10 +48,11 @@ namespace Labs.ACW.Objects
             Matrix4 rotationMatrix = CreateRotationMatrix(inRotation);
             if (parent != null)
             {
-                mLocalTransform = parent.LocalTransform *
+                mLocalTransform = Matrix4.CreateTranslation(-position / 2) *
                     Matrix4.CreateScale(inScale) *
+                    rotationMatrix *
                     Matrix4.CreateTranslation(position) *
-                    rotationMatrix;
+                    Matrix4.CreateTranslation(parent.LocalTransform.ExtractTranslation());
             }
             else
             {

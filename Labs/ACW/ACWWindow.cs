@@ -16,12 +16,13 @@ namespace Labs.ACW
     public class ACWWindow : GameWindow
     {
         private Camera staticCam, dynCam, ActiveCam;
-        private int[] VAO_IDs = new int[7];
+        private int[] VAO_IDs = new int[11];
         private ShaderUtility shader, shader2;
         private int[] shaderIDs;
         private Cube cube, ground, wallL, wallR, wallF;
         private Tetrahedron tet;
         private Model werewolfModel;
+        private Model[] orbitSpheres;
         List<Objects.Object> nonTexturedObjects = new List<Objects.Object>();
         List<Objects.Object> texturedObjects = new List<Objects.Object>();
         List<Light> lights = new List<Light>();
@@ -60,7 +61,7 @@ namespace Labs.ACW
             shaderIDs = new int[2];
             shaderIDs[0] = shader.ShaderProgramID;
             shaderIDs[1] = shader2.ShaderProgramID;
-
+            orbitSpheres = new Model[4]; 
             GenerateCameras();
 
             GenerateLights();
@@ -100,23 +101,39 @@ namespace Labs.ACW
                 new Vector3(0f, 0, 0), shaderIDs[1], VAO_IDs[2], cubeMat);
             tet.Updatable = true;
             nonTexturedObjects.Add(tet);
+            //mLocalTransform *= Matrix4.CreateScale(0.2f) * Matrix4.CreateRotationY(-1.55f);
 
-            werewolfModel = new Model(new Vector3(-0.4f, 0.3f, 1f), shaderIDs[1], VAO_IDs[3], "Utility/Models/model.bin", cubeMat);
+            werewolfModel = new Model(new Vector3(-0.1f, 0.06f, 0f), new Vector3(0.2f), new Vector3(0,-1.65f,0), 
+                        shaderIDs[1], VAO_IDs[3], "Utility/Models/model.bin", cubeMat);
             nonTexturedObjects.Add(werewolfModel);
+
+            orbitSpheres[0] = new OrbitSphere(new Vector3(0.25f, 0f, 0f), new Vector3(0.05f), 
+                shaderIDs[1], VAO_IDs[4], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+            orbitSpheres[1] = new OrbitSphere(new Vector3(-0.25f, 0f, 0f), new Vector3(0.05f), 
+                shaderIDs[1], VAO_IDs[5], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+            orbitSpheres[2] = new OrbitSphere(new Vector3(0f, 0f, 0.25f), new Vector3(0.05f), 
+                shaderIDs[1], VAO_IDs[6], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+            orbitSpheres[3] = new OrbitSphere(new Vector3(0f, 0f, -0.25f), new Vector3(0.05f), 
+                shaderIDs[1], VAO_IDs[7], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+            for (int i = 0; i < orbitSpheres.Length; i++)
+            {
+                orbitSpheres[i].Updatable = true;
+                nonTexturedObjects.Add(orbitSpheres[i]);
+            }
             #endregion
 
             #region TexturedObjects
             GL.UseProgram(shaderIDs[0]);
             wallL = new Cube(new Vector3(-1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[4], cubeMat, textureFilePaths[0]);
+                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[8], cubeMat, textureFilePaths[0]);
             texturedObjects.Add(wallL);
 
             wallR = new Cube(new Vector3(1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                 new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[5], cubeMat, textureFilePaths[0]);
+                 new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[9], cubeMat, textureFilePaths[0]);
             texturedObjects.Add(wallR);
 
             wallF = new Cube(new Vector3(0f, -0.6f, -1f), new Vector3(7f, 3f, 0.3f),
-                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[6], cubeMat, textureFilePaths[0]);
+                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[10], cubeMat, textureFilePaths[0]);
             texturedObjects.Add(wallF);
             #endregion
         }
