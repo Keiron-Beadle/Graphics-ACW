@@ -17,7 +17,9 @@ namespace Labs.ACW
     {
         private Camera staticCam, dynCam, ActiveCam;
         private int[] VAO_IDs = new int[11];
+        private int[] texture_IDs = new int[2];
         private ShaderUtility shader, shader2;
+        protected BitmapData TextureData;
         private int[] shaderIDs;
         private Cube cube, ground, wallL, wallR, wallF;
         private Tetrahedron tet;
@@ -27,7 +29,7 @@ namespace Labs.ACW
         List<Objects.Object> texturedObjects = new List<Objects.Object>();
         List<Light> lights = new List<Light>();
 
-        private string[] textureFilePaths = { "ACW/Resources/woodTex.jpg" };
+        private string[] textureFilePaths = { "ACW/Resources/woodTex.jpg", "ACW/Resources/stoneTex.jpg" };
 
         public ACWWindow()
             : base(
@@ -68,6 +70,9 @@ namespace Labs.ACW
 
             GL.GenVertexArrays(VAO_IDs.Length, VAO_IDs);
 
+            GL.GenTextures(2, texture_IDs);
+            LoadTexture(textureFilePaths[0], texture_IDs[0]);
+            LoadTexture(textureFilePaths[1], texture_IDs[1]);
             GenerateEntities();
 
             GL.BindVertexArray(0);
@@ -89,32 +94,30 @@ namespace Labs.ACW
 
             #region NonTexturedObjects
             GL.UseProgram(shaderIDs[1]);
-            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(15f, 0.1f, 15f), Vector3.Zero, shaderIDs[1], VAO_IDs[0], groundMat);
-            nonTexturedObjects.Add(ground);
 
             cube = new Cube(new Vector3(0.5f, 0.25f, -0.2f), new Vector3(0.8f, 0.8f, 0.8f),
-                new Vector3(1.1f, -0.1f, 1f), shaderIDs[1], VAO_IDs[1], cubeMat);
+                new Vector3(1.1f, -0.1f, 1f), shaderIDs[1], VAO_IDs[0], cubeMat);
             cube.Updatable = true;
             nonTexturedObjects.Add(cube);
 
             tet = new Tetrahedron(new Vector3(-0.7f, 0f, 0f), new Vector3(0.2f, 0.2f, 0.2f),
-                new Vector3(0f, 0, 0), shaderIDs[1], VAO_IDs[2], cubeMat);
+                new Vector3(0f, 0, 0), shaderIDs[1], VAO_IDs[1], cubeMat);
             tet.Updatable = true;
             nonTexturedObjects.Add(tet);
             //mLocalTransform *= Matrix4.CreateScale(0.2f) * Matrix4.CreateRotationY(-1.55f);
 
             werewolfModel = new Model(new Vector3(-0.1f, 0.06f, 0f), new Vector3(0.2f), new Vector3(0,-1.65f,0), 
-                        shaderIDs[1], VAO_IDs[3], "Utility/Models/model.bin", cubeMat);
+                        shaderIDs[1], VAO_IDs[2], "Utility/Models/model.bin", cubeMat);
             nonTexturedObjects.Add(werewolfModel);
 
             orbitSpheres[0] = new OrbitSphere(new Vector3(0.25f, 0f, 0f), new Vector3(0.05f), 
-                shaderIDs[1], VAO_IDs[4], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+                shaderIDs[1], VAO_IDs[3], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
             orbitSpheres[1] = new OrbitSphere(new Vector3(-0.25f, 0f, 0f), new Vector3(0.05f), 
-                shaderIDs[1], VAO_IDs[5], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+                shaderIDs[1], VAO_IDs[4], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
             orbitSpheres[2] = new OrbitSphere(new Vector3(0f, 0f, 0.25f), new Vector3(0.05f), 
-                shaderIDs[1], VAO_IDs[6], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+                shaderIDs[1], VAO_IDs[5], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
             orbitSpheres[3] = new OrbitSphere(new Vector3(0f, 0f, -0.25f), new Vector3(0.05f), 
-                shaderIDs[1], VAO_IDs[7], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
+                shaderIDs[1], VAO_IDs[6], "Utility/Models/sphere.bin", cubeMat, werewolfModel);
             for (int i = 0; i < orbitSpheres.Length; i++)
             {
                 orbitSpheres[i].Updatable = true;
@@ -124,16 +127,23 @@ namespace Labs.ACW
 
             #region TexturedObjects
             GL.UseProgram(shaderIDs[0]);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            ground = new Cube(new Vector3(0f, -0.2f, 0f), new Vector3(15f, 0.1f, 15f), 
+                Vector3.Zero, shaderIDs[0], VAO_IDs[7], groundMat, texture_IDs[1]);
+            texturedObjects.Add(ground);
+
+            GL.ActiveTexture(TextureUnit.Texture1);
             wallL = new Cube(new Vector3(-1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[8], cubeMat, textureFilePaths[0]);
+                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[8], cubeMat, texture_IDs[0]);
             texturedObjects.Add(wallL);
 
             wallR = new Cube(new Vector3(1.1f, -0.6f, 0f), new Vector3(0.3f, 3f, 7f),
-                 new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[9], cubeMat, textureFilePaths[0]);
+                 new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[9], cubeMat, texture_IDs[0]);
             texturedObjects.Add(wallR);
 
             wallF = new Cube(new Vector3(0f, -0.6f, -1f), new Vector3(7f, 3f, 0.3f),
-                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[10], cubeMat, textureFilePaths[0]);
+                new Vector3(0, 0, 0), shaderIDs[0], VAO_IDs[10], cubeMat, texture_IDs[0]);
             texturedObjects.Add(wallF);
             #endregion
         }
@@ -160,6 +170,33 @@ namespace Labs.ACW
             lights.Add(new Light(p2, shaderIDs));
             lights.Add(new Light(p3, shaderIDs));
             lights.Add(new Light(spot, shaderIDs));
+        }
+
+        private void LoadTexture(string textureFilePath, int textureID)
+        {
+            Bitmap texBitmap;
+            if (System.IO.File.Exists(textureFilePath))
+            {
+                texBitmap = new Bitmap(textureFilePath);
+                texBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                BitmapData texData = texBitmap.LockBits(new Rectangle(0, 0, texBitmap.Width, texBitmap.Height),
+                    ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                TextureData = texData;
+            }
+            else
+            {
+                throw new Exception("Could not find file: " + textureFilePath);
+            }
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, textureID);
+            GL.TexImage2D(TextureTarget.Texture2D,
+                0, PixelInternalFormat.Rgba, TextureData.Width, TextureData.Height,
+                0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                PixelType.UnsignedByte, TextureData.Scan0);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            texBitmap.UnlockBits(TextureData);
+            //texBitmap.Dispose();
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)

@@ -13,8 +13,8 @@ namespace Labs.ACW.Objects
 {
     class Cube : Object
     {
-        public Cube(Vector3 inPosition,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, string texFilePath = null) 
-            : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial, texFilePath)
+        public Cube(Vector3 inPosition,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, 
+            int pTexID = 0) : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial, null, pTexID)
         {
             vboData = CreateVBOData();
             int vPositionLocation = GL.GetAttribLocation(shaderID, "vPosition");
@@ -33,9 +33,8 @@ namespace Labs.ACW.Objects
             GL.VertexAttribPointer(vNormalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(vNormalLocation);
 
-            if (textureFilePath != null)
+            if (textureID != -1)
             {
-                LoadTexture();
                 int vTexCoordLocation = GL.GetAttribLocation(shaderID, "vTexCoords");
                 int uTextureSamplerLocation = GL.GetUniformLocation(shaderID, "uTextureSampler");
                 GL.Uniform1(uTextureSamplerLocation, 0);
@@ -108,6 +107,8 @@ namespace Labs.ACW.Objects
         public override void Draw()
         {
             base.Draw();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, textureID);
             GL.BindVertexArray(VAO_ID);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 

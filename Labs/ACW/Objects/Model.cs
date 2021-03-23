@@ -16,7 +16,7 @@ namespace Labs.ACW.Objects
         private ModelUtility modelUtility;
 
         public Model(Vector3 pPosition, Vector3 pScale, Vector3 pRotation, int pShaderID, int pVAO_ID, string pFileLocation, Material pMaterial, Object pParent = null)
-            : base(pPosition, pScale, pRotation, pShaderID, pVAO_ID, pMaterial, pFileLocation, pParent)
+            : base(pPosition, pScale, pRotation, pShaderID, pVAO_ID, pMaterial, pFileLocation, -1, pParent)
         {
             GL.BindVertexArray(VAO_ID);
             GL.GenBuffers(VBO_IDs.Length, VBO_IDs);

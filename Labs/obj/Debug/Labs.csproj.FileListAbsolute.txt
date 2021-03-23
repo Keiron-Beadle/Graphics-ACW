@@ -105,7 +105,6 @@ C:\Users\Keiro\Desktop\Graphics ACW\Labs\obj\Debug\Labs.csproj.CopyComplete
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\obj\Debug\Labs.exe
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\obj\Debug\Labs.pdb
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Resources\woodTex.jpg
-C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Resources\woodTexHeight.png
-C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Resources\woodTexNormal.jpg
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Shaders\fShaderNoTex.frag
 C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Shaders\vShaderNoTex.vert
+C:\Users\Keiro\Desktop\Graphics ACW\Labs\bin\Debug\ACW\Resources\stoneTex.jpg
