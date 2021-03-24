@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="ACW\ACWWindow.cs" />
     <Compile Include="ACW\Camera.cs" />
+    <Compile Include="ACW\Framebuffer.cs" />
     <Compile Include="ACW\Lights\Light.cs" />
     <Compile Include="ACW\Objects\Cube.cs" />
     <Compile Include="ACW\Objects\Model.cs" />

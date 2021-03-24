@@ -26,22 +26,19 @@ namespace Labs.ACW
 
         public void SetViewMatrix(Matrix4 mat) { viewMat = mat; }
 
-        public Camera(Vector3 inPosition, float clientWidth, float clientHeight, int[] shaderIDs)
-        : this (inPosition, Vector3.Zero,clientWidth, clientHeight, shaderIDs) { }
+        public Camera(Vector3 pPosition, float pClientWidth, float pClientHeight, int[] pShaderIDs)
+        : this (pPosition, Vector3.Zero, pClientWidth, pClientHeight, pShaderIDs) { }
 
-        public Camera(Vector3 inPosition, Vector3 pLookAt, float clientWidth, float clientHeight, int[] pShaderIDs)
+        public Camera(Vector3 pPosition, Vector3 pLookAt, float pClientWidth, float pClientHeight, int[] pShaderIDs)
         {
             shaderIDs = pShaderIDs;
-            //eyePosition = new Vector4(inPosition,1);
             Vector3 lookAt = pLookAt;
-            projMat = Matrix4.CreatePerspectiveFieldOfView(1, clientWidth / clientHeight, 0.01f, 50f);
-            viewMat = Matrix4.LookAt(inPosition, lookAt, Vector3.UnitY);
-            //viewMat = Matrix4.Identity;
+            projMat = Matrix4.CreatePerspectiveFieldOfView(1, pClientWidth / pClientHeight, 0.01f, 50f);
+            viewMat = Matrix4.LookAt(pPosition, lookAt, Vector3.UnitY);
             for (int i = 0; i < shaderIDs.Length; i++)
             {
                 GL.UseProgram(shaderIDs[i]);
                 uViewLocation = GL.GetUniformLocation(shaderIDs[i], "uView");
-                //GL.UniformMatrix4(uViewLocation, true, ref viewMat);
                 uProjectionLocation = GL.GetUniformLocation(shaderIDs[i], "uProjection");
                 GL.UniformMatrix4(uProjectionLocation, true, ref projMat);
                 UpdateUEyeLocation(shaderIDs[i]);
@@ -106,7 +103,6 @@ namespace Labs.ACW
             viewMat *= temp;
             for (int i = 0; i < shaderIDs.Length; i++)
             {
-              //  GL.UseProgram(shaderIDs[i]);
                 uViewLocation = GL.GetUniformLocation(shaderIDs[i], "uView");
                 GL.UniformMatrix4(uViewLocation, true, ref viewMat);
                 UpdateUEyeLocation(shaderIDs[i]);

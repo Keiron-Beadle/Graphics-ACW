@@ -28,27 +28,27 @@ namespace Labs.ACW.Objects
         public Matrix4 LocalTransform => mLocalTransform;
         public bool Updatable;
 
-        public Object(Vector3 inPosition, int shaderProgramID, int vao_ID, Material pMaterial = new Material()) 
-            : this(inPosition, Vector3.One, Vector3.Zero, shaderProgramID, vao_ID, pMaterial) { }
+        public Object(Vector3 pPosition, int pShaderID, int pVAO_ID, Material pMaterial = new Material()) 
+            : this(pPosition, Vector3.One, Vector3.Zero, pShaderID, pVAO_ID, pMaterial) { }
 
-        public Object(Vector3 inPosition, Vector3 inScale, Vector3 inRotation, int shaderProgramID, 
-            int vao_ID, Material pMaterial, string pModelLocation = null, int pTexID = -1, Object pParent = null)
+        public Object(Vector3 pPosition, Vector3 pScale, Vector3 pRotation, int pShaderID, 
+            int pVAO_ID, Material pMaterial, string pModelLocation = null, int pTexID = -1, Object pParent = null)
         {
-            scale = inScale;
-            rotation = inRotation;
+            scale = pScale;
+            rotation = pRotation;
             parent = pParent;
             textureID = pTexID;
             Updatable = false;
-            position = inPosition;
+            position = pPosition;
             thisMaterial = pMaterial;
-            this.VAO_ID = vao_ID;
-            shaderID = shaderProgramID;
+            this.VAO_ID = pVAO_ID;
+            shaderID = pShaderID;
             VBO_IDs = new int[2];
-            Matrix4 rotationMatrix = CreateRotationMatrix(inRotation);
+            Matrix4 rotationMatrix = CreateRotationMatrix(pRotation);
             if (parent != null)
             {
                 mLocalTransform = Matrix4.CreateTranslation(-position / 2) *
-                    Matrix4.CreateScale(inScale) *
+                    Matrix4.CreateScale(scale) *
                     rotationMatrix *
                     Matrix4.CreateTranslation(position) *
                     Matrix4.CreateTranslation(parent.LocalTransform.ExtractTranslation());
@@ -56,7 +56,7 @@ namespace Labs.ACW.Objects
             else
             {
                 mLocalTransform = Matrix4.CreateTranslation(-position / 2) *
-                                  Matrix4.CreateScale(inScale) *
+                                  Matrix4.CreateScale(scale) *
                                   rotationMatrix *
                                   Matrix4.CreateTranslation(position);
             }
@@ -78,12 +78,12 @@ namespace Labs.ACW.Objects
 
         public abstract void Dispose();
 
-        protected Matrix4 CreateRotationMatrix(Vector3 inRotation)
+        protected Matrix4 CreateRotationMatrix(Vector3 pRotation)
         {
             Matrix4 temp = Matrix4.Identity;
-            if (inRotation.X != 0) { temp *= Matrix4.CreateRotationX(inRotation.X); }
-            if (inRotation.Y != 0) { temp *= Matrix4.CreateRotationY(inRotation.Y); }
-            if (inRotation.Z != 0) { temp *= Matrix4.CreateRotationZ(inRotation.Z); }
+            if (pRotation.X != 0) { temp *= Matrix4.CreateRotationX(pRotation.X); }
+            if (pRotation.Y != 0) { temp *= Matrix4.CreateRotationY(pRotation.Y); }
+            if (pRotation.Z != 0) { temp *= Matrix4.CreateRotationZ(pRotation.Z); }
             return temp;
         }
 

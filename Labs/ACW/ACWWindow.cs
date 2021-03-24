@@ -15,24 +15,20 @@ namespace Labs.ACW
 {
     public class ACWWindow : GameWindow
     {
-        private Camera staticCam, dynCam, ActiveCam;
-        private int[] VAO_IDs = new int[11];
-        private int[] texture_IDs = new int[2];
+        private List<Objects.Object> nonTexturedObjects = new List<Objects.Object>(); //Hold objects to be drawn by non-textured shader
+        private List<Objects.Object> texturedObjects = new List<Objects.Object>(); //Hold objects to be drawn by textured shader
+        private List<Light> lights = new List<Light>(); //Lights in the scene
+        private Camera staticCam, dynCam, ActiveCam; 
         private ShaderUtility shader, shader2, fboShader;
-        protected BitmapData TextureData;
-        private int[] shaderIDs;
         private Cube cube, ground, wallL, wallR, wallF;
         private Tetrahedron tet;
         private Model werewolfModel;
         private Model[] orbitSpheres;
-        List<Objects.Object> nonTexturedObjects = new List<Objects.Object>();
-        List<Objects.Object> texturedObjects = new List<Objects.Object>();
-        List<Light> lights = new List<Light>();
-        private int FBO_ID;
-        private int FBO_VAO;
-        private int FBO_VBO;
-        private uint fboTexID;
-        private uint FBO_RBO;
+        private BitmapData textureData;
+        private Framebuffer frameBuffer;
+        private int[] VAO_IDs = new int[11];
+        private int[] texture_IDs = new int[2];
+        private int[] shaderIDs;
         private string[] textureFilePaths = { "ACW/Resources/woodTex.jpg", "ACW/Resources/stoneTex.jpg" };
 
         public ACWWindow()
@@ -61,10 +57,7 @@ namespace Labs.ACW
         protected override void OnLoad(EventArgs e)
         {
             fboShader = new ShaderUtility(@"ACW/Shaders/vShaderFBO.vert", @"ACW/Shaders/fShaderFBO.frag");
-            GenFrameBuffer();
-            GenScreenQuad();
-            GL.ClearColor(0.392f, 0.584f, 0.929f, 1.0f);
-            GL.Enable(EnableCap.DepthTest);
+            frameBuffer = new Framebuffer(fboShader.ShaderProgramID);
             shader = new ShaderUtility(@"ACW/Shaders/vShader.vert", @"ACW/Shaders/fShader.frag");
             shader2 = new ShaderUtility(@"ACW/Shaders/vShaderNoTex.vert", @"ACW/Shaders/fShaderNoTex.frag");
             shaderIDs = new int[2];
@@ -87,51 +80,6 @@ namespace Labs.ACW
             base.OnLoad(e);
         }
 
-        private void GenScreenQuad()
-        {
-            float[] screenQuadVerts = new float[]
-            {   //vPos       //vTexCoords
-                -1.0f, 1.0f, 0.0f, 1.0f,
-                -1.0f, -1.0f, 0.0f, 0.0f,
-                1.0f, -1.0f, 1.0f, 0.0f,
-
-                -1.0f, 1.0f, 0.0f, 1.0f,
-                1.0f, -1.0f, 1.0f, 0.0f,
-                1.0f, 1.0f, 1.0f, 1.0f
-            };
-            GL.GenVertexArrays(1, out FBO_VAO);
-            GL.GenBuffers(1, out FBO_VBO);
-            GL.BindVertexArray(FBO_VAO);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, FBO_VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(sizeof(float) * screenQuadVerts.Length), screenQuadVerts, BufferUsageHint.StaticDraw);
-            int vPosLocation = GL.GetAttribLocation(fboShader.ShaderProgramID, "vPosition");
-            int vTexCoordLocation = GL.GetAttribLocation(fboShader.ShaderProgramID, "vTexCoords");
-            GL.EnableVertexAttribArray(vPosLocation);
-            GL.VertexAttribPointer(vPosLocation, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(vTexCoordLocation);
-            GL.VertexAttribPointer(vTexCoordLocation, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
-        }
-
-        private void GenFrameBuffer()
-        {
-            GL.GenFramebuffers(1, out FBO_ID);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO_ID);
-            GL.GenTextures(1, out fboTexID);
-            GL.BindTexture(TextureTarget.Texture2D, fboTexID);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, 1600, 1200, 0, 
-                OpenTK.Graphics.OpenGL.PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, fboTexID, 0);
-            GL.GenRenderbuffers(1, out FBO_RBO);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, FBO_RBO);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, 1600, 1200);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, 
-                RenderbufferTarget.Renderbuffer, FBO_RBO);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        }
-
         private void GenerateEntities()
         {
             #region Materials
@@ -142,6 +90,9 @@ namespace Labs.ACW
             Material cubeMat = MakeMaterial(new Vector3(0f, 0f, 0f),
                 new Vector3(0.55f, 0.55f, 0.55f),
                     new Vector3(0.7f, 0.7f, 0.7f), 0.25f);
+
+            Material werewolfMat = MakeMaterial(new Vector3(0.05f, 0f, 0f),
+                new Vector3(0.5f, 0.4f, 0.4f), new Vector3(0.7f, 0.04f, 0.04f), 10f);
             #endregion
 
             #region NonTexturedObjects
@@ -156,10 +107,9 @@ namespace Labs.ACW
                 new Vector3(0f, 0, 0), shaderIDs[1], VAO_IDs[1], cubeMat);
             tet.Updatable = true;
             nonTexturedObjects.Add(tet);
-            //mLocalTransform *= Matrix4.CreateScale(0.2f) * Matrix4.CreateRotationY(-1.55f);
 
             werewolfModel = new Model(new Vector3(-0.1f, 0.06f, 0f), new Vector3(0.2f), new Vector3(0,-1.65f,0), 
-                        shaderIDs[1], VAO_IDs[2], "Utility/Models/model.bin", cubeMat);
+                        shaderIDs[1], VAO_IDs[2], "Utility/Models/model.bin", werewolfMat);
             nonTexturedObjects.Add(werewolfModel);
 
             orbitSpheres[0] = new OrbitSphere(new Vector3(0.25f, 0f, 0f), new Vector3(0.05f), 
@@ -211,9 +161,9 @@ namespace Labs.ACW
         {
             LightProperties p1 = MakeLightPropertes(new Vector4(-0.7f, 0.5f, -0.5f, 1), new Vector3(0.04f, 0.04f, 0.04f), 
                 new Vector3(0.1804f, 0.85098f, 1f), new Vector3(0.045f, 0.2125f, 0.25f));
-            LightProperties p2 = MakeLightPropertes(new Vector4(0f, 2f, -5f, 1), new Vector3(0f, 0f, 0f), 
-                new Vector3(0.2f, 0.2f, 0.2f), new Vector3(0f, 0, 0));
-            LightProperties p3 = MakeLightPropertes(new Vector4(0.5f, 0.4f, 0.8f, 1), 
+            LightProperties p2 = MakeLightPropertes(new Vector4(0f, 1f, 0.3f, 1), new Vector3(0.06f, 0.06f, 0.06f), 
+                new Vector3(0.15f, 0.05f, 0.05f), new Vector3(0.2f, 0.2f, 0.2f));
+            LightProperties p3 = MakeLightPropertes(new Vector4(0.5f, 0.2f, 0.8f, 1), 
                 new Vector3(0.04f, 0.04f, 0.04f), new Vector3(0.8219f, 0.03635f, 0.62274f), 
                 new Vector3(0.055f, 0.06f, 0.25f));
             LightProperties spot = MakeLightPropertes(new Vector4(-0.1f,1,0,1), new Vector3(0.01f, 0.01f, 0.01f), 
@@ -224,30 +174,30 @@ namespace Labs.ACW
             lights.Add(new Light(spot, shaderIDs));
         }
 
-        private void LoadTexture(string textureFilePath, int textureID)
+        private void LoadTexture(string pTexFilePath, int pTextureID)
         {
             Bitmap texBitmap;
-            if (System.IO.File.Exists(textureFilePath))
+            if (System.IO.File.Exists(pTexFilePath))
             {
-                texBitmap = new Bitmap(textureFilePath);
+                texBitmap = new Bitmap(pTexFilePath);
                 texBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
                 BitmapData texData = texBitmap.LockBits(new Rectangle(0, 0, texBitmap.Width, texBitmap.Height),
                     ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                TextureData = texData;
+                textureData = texData;
             }
             else
             {
-                throw new Exception("Could not find file: " + textureFilePath);
+                throw new Exception("Could not find file: " + pTexFilePath);
             }
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, textureID);
+            GL.BindTexture(TextureTarget.Texture2D, pTextureID);
             GL.TexImage2D(TextureTarget.Texture2D,
-                0, PixelInternalFormat.Rgba, TextureData.Width, TextureData.Height,
+                0, PixelInternalFormat.Rgba, textureData.Width, textureData.Height,
                 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
-                PixelType.UnsignedByte, TextureData.Scan0);
+                PixelType.UnsignedByte, textureData.Scan0);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            texBitmap.UnlockBits(TextureData);
+            texBitmap.UnlockBits(textureData);
             //texBitmap.Dispose();
         }
 
@@ -255,6 +205,7 @@ namespace Labs.ACW
         {
             base.OnKeyDown(e);
             dynCam.OnKeyDown(e);
+            frameBuffer.OnKeyDown(e);
             if (e.Key == Key.O)
             {
                 if (dynCam.Active) { dynCam.Active = false; staticCam.Active = true; }
@@ -297,10 +248,7 @@ namespace Labs.ACW
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO_ID);
-            GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.Enable(EnableCap.DepthTest);
+            frameBuffer.Bind();
             GL.UseProgram(shaderIDs[1]);
             for (int i = 0; i < nonTexturedObjects.Count; i++)
             {
@@ -316,13 +264,7 @@ namespace Labs.ACW
                 texturedObjects[i - nonTexturedObjects.Count].Draw();
             }
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            GL.Disable(EnableCap.DepthTest);
-            GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            GL.UseProgram(fboShader.ShaderProgramID);
-            GL.BindVertexArray(FBO_VAO);
-            GL.BindTexture(TextureTarget.Texture2D, fboTexID);
+            frameBuffer.Unbind();
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
             GL.BindVertexArray(0);
             SwapBuffers();
@@ -343,6 +285,9 @@ namespace Labs.ACW
         {
             base.OnResize(e);
             GL.Viewport(this.ClientRectangle);
+
+            frameBuffer.InitialiseRenderBuffer(ClientRectangle.Width, ClientRectangle.Height);
+
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(1, (float)Width / Height, 0.01f, 50f);
             for (int i = 0; i < shaderIDs.Length; i++)
             {
@@ -359,11 +304,8 @@ namespace Labs.ACW
             for (int i = 0; i < nonTexturedObjects.Count; i++) { nonTexturedObjects[i].Dispose(); }
             for (int i = 0; i < texturedObjects.Count; i++) { texturedObjects[i].Dispose(); }
             GL.DeleteVertexArrays(VAO_IDs.Length, VAO_IDs);
-            GL.DeleteVertexArray(FBO_VAO);
             GL.DeleteTextures(1, texture_IDs);
-            GL.DeleteTexture(fboTexID);
-            GL.DeleteFramebuffer(FBO_ID);
-            GL.DeleteRenderbuffer(FBO_RBO);
+            frameBuffer.Delete();
             shader.Delete();
             shader2.Delete();
             fboShader.Delete();

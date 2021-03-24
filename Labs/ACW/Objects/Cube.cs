@@ -13,8 +13,8 @@ namespace Labs.ACW.Objects
 {
     class Cube : Object
     {
-        public Cube(Vector3 inPosition,Vector3 inScale, Vector3 inRotation, int shaderProgramID, int vao_ID, Material pMaterial, 
-            int pTexID = 0) : base(inPosition, inScale, inRotation, shaderProgramID, vao_ID, pMaterial, null, pTexID)
+        public Cube(Vector3 pPosition,Vector3 pScale, Vector3 pRotation, int pShaderID, int pVAO_ID, Material pMaterial, 
+            int pTexID = 0) : base(pPosition, pScale, pRotation, pShaderID, pVAO_ID, pMaterial, null, pTexID)
         {
             vboData = CreateVBOData();
             int vPositionLocation = GL.GetAttribLocation(shaderID, "vPosition");
@@ -117,7 +117,6 @@ namespace Labs.ACW.Objects
         public override void Update(Camera pActiveCam, double pDeltaTime)
         {
             Matrix4 rot = CreateRotationMatrix(new Vector3(-0.95f, 0.4f, 0.85f) * (float)pDeltaTime);
-            //Console.WriteLine(pDeltaTime);
             Matrix4.Mult(ref rot, ref mLocalTransform, out mLocalTransform);
         }
 
