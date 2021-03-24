@@ -15,6 +15,15 @@ namespace Labs.ACW
 {
     public class ACWWindow : GameWindow
     {
+        /// <summary>
+        /// Controls:
+        /// W,A,S,D - Movement
+        /// Q,E, - Left/Right rotation
+        /// Up, Down arrow-keys - Up/Down rotation
+        /// Shift/Spacebar - Elevation change
+        /// O - Swap cameras
+        /// Z,X,C - Switch post-processing FX
+        /// </summary>
         private List<Objects.Object> nonTexturedObjects = new List<Objects.Object>(); //Hold objects to be drawn by non-textured shader
         private List<Objects.Object> texturedObjects = new List<Objects.Object>(); //Hold objects to be drawn by textured shader
         private List<Light> lights = new List<Light>(); //Lights in the scene

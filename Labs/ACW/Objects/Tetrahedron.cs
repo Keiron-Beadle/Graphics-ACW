@@ -16,16 +16,26 @@ namespace Labs.ACW.Objects
             : base(pPosition, pScale, pRotation, pShaderProgramID, pVAO_ID, pMaterial, pTexFilePath)
         {
             Vector3 p1 = new Vector3(0.9428f, -0.33333f, 0);
-            Vector3 p3 = new Vector3(-0.4714f, -0.33333f, -0.81649f);
-            Vector3 p2 = new Vector3(-0.4714f, -0.3333f, 0.81649f);
+            Vector3 p2 = new Vector3(-0.4714f, -0.33333f, -0.81649f);
+            Vector3 p3 = new Vector3(-0.4714f, -0.3333f, 0.81649f);
             Vector3 p4 = new Vector3(0, 1, 0) ;
+
+            //Trial ground for finding the averaged normals for tetrahedron. 
+            //Vector3 norm1 = Vector3.Cross(p3 - p1, p2 - p1) + Vector3.Cross(p3 - p1, p4 - p1) + Vector3.Cross(p2 - p1, p4 - p1);
+            //Vector3 avg1 = Vector3.Normalize(norm1);
+            //Vector3 norm2 = Vector3.Cross(p3-p2, p1-p2) + Vector3.Cross(p3-p2, p4-p2) + Vector3.Cross(p4-p2, p1-p2);
+            //Vector3 norm3 = Vector3.Cross(p2-p3, p1-p3) + Vector3.Cross(p4-p3, p2-p3) + Vector3.Cross(p4-p3, p1-p3);
+            //Vector3 norm4 = Vector3.Cross(p2-p4, p3-p4) + Vector3.Cross(p1-p4, p2-p4) + Vector3.Cross(p1-p4, p3-p4);
+            //Vector3 avg2 = Vector3.Normalize(norm2);
+            //Vector3 avg3 = Vector3.Normalize(norm3);
+            //Vector3 avg4 = Vector3.Normalize(norm4);
 
             vboData = new float[]
             {
-                p1.X,p1.Y,p1.Z,0.0000008167877f,0.7697868f,-1.25704f,
-                p2.X,p2.Y,p2.Z,1.088651f,0.7697868f, 0.6285412f,
-                p3.X,p3.Y,p3.Z,-0.3628671f, 1.282978f, -0.6285034f,
-                p4.X,p4.Y,p4.Z,0.725759f,-0.2565956f, 1.257049f
+                p1.X,p1.Y,p1.Z,-0.0000005553247f,-0.5222294f,-0.852805f,
+                p2.X,p2.Y,p2.Z,-0.246176f,0.8703966f, -0.4264148f,
+                p3.X,p3.Y,p3.Z,-0.7385547f, -0.5222332f, -0.4263913f,
+                p4.X,p4.Y,p4.Z,-0.4923665f,0.1740785f, -0.8528025f
             };
 
             indices = new uint[]
@@ -60,7 +70,7 @@ namespace Labs.ACW.Objects
             base.Draw();
             GL.BindVertexArray(VAO_ID);
             //GL.DrawArrays(PrimitiveType.Triangles, 0, 12);
-            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, indices);
+            GL.DrawElements(PrimitiveType.TriangleStrip, indices.Length, DrawElementsType.UnsignedInt, indices);
         }
 
         public override void Dispose()
@@ -79,7 +89,7 @@ namespace Labs.ACW.Objects
         {
             Matrix4 rot = CreateRotationMatrix(new Vector3(0f, 1f, 0f) * (float)pDeltaTime);
             //Console.WriteLine((int)Math.Round(1/pDeltaTime,0));
-           // Matrix4.Mult(ref rot, ref mLocalTransform, out mLocalTransform);
+            Matrix4.Mult(ref rot, ref mLocalTransform, out mLocalTransform);
         }
 
         protected override void UpdateUMaterial()
