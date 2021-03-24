@@ -18,7 +18,7 @@ namespace Labs.ACW
         private Camera staticCam, dynCam, ActiveCam;
         private int[] VAO_IDs = new int[11];
         private int[] texture_IDs = new int[2];
-        private ShaderUtility shader, shader2;
+        private ShaderUtility shader, shader2, fboShader;
         protected BitmapData TextureData;
         private int[] shaderIDs;
         private Cube cube, ground, wallL, wallR, wallF;
@@ -28,7 +28,11 @@ namespace Labs.ACW
         List<Objects.Object> nonTexturedObjects = new List<Objects.Object>();
         List<Objects.Object> texturedObjects = new List<Objects.Object>();
         List<Light> lights = new List<Light>();
-
+        private int FBO_ID;
+        private int FBO_VAO;
+        private int FBO_VBO;
+        private uint fboTexID;
+        private uint FBO_RBO;
         private string[] textureFilePaths = { "ACW/Resources/woodTex.jpg", "ACW/Resources/stoneTex.jpg" };
 
         public ACWWindow()
@@ -56,6 +60,9 @@ namespace Labs.ACW
 
         protected override void OnLoad(EventArgs e)
         {
+            fboShader = new ShaderUtility(@"ACW/Shaders/vShaderFBO.vert", @"ACW/Shaders/fShaderFBO.frag");
+            GenFrameBuffer();
+            GenScreenQuad();
             GL.ClearColor(0.392f, 0.584f, 0.929f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             shader = new ShaderUtility(@"ACW/Shaders/vShader.vert", @"ACW/Shaders/fShader.frag");
@@ -63,7 +70,7 @@ namespace Labs.ACW
             shaderIDs = new int[2];
             shaderIDs[0] = shader.ShaderProgramID;
             shaderIDs[1] = shader2.ShaderProgramID;
-            orbitSpheres = new Model[4]; 
+            orbitSpheres = new Model[4];
             GenerateCameras();
 
             GenerateLights();
@@ -78,6 +85,51 @@ namespace Labs.ACW
             GL.BindVertexArray(0);
 
             base.OnLoad(e);
+        }
+
+        private void GenScreenQuad()
+        {
+            float[] screenQuadVerts = new float[]
+            {   //vPos       //vTexCoords
+                -1.0f, 1.0f, 0.0f, 1.0f,
+                -1.0f, -1.0f, 0.0f, 0.0f,
+                1.0f, -1.0f, 1.0f, 0.0f,
+
+                -1.0f, 1.0f, 0.0f, 1.0f,
+                1.0f, -1.0f, 1.0f, 0.0f,
+                1.0f, 1.0f, 1.0f, 1.0f
+            };
+            GL.GenVertexArrays(1, out FBO_VAO);
+            GL.GenBuffers(1, out FBO_VBO);
+            GL.BindVertexArray(FBO_VAO);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, FBO_VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(sizeof(float) * screenQuadVerts.Length), screenQuadVerts, BufferUsageHint.StaticDraw);
+            int vPosLocation = GL.GetAttribLocation(fboShader.ShaderProgramID, "vPosition");
+            int vTexCoordLocation = GL.GetAttribLocation(fboShader.ShaderProgramID, "vTexCoords");
+            GL.EnableVertexAttribArray(vPosLocation);
+            GL.VertexAttribPointer(vPosLocation, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(vTexCoordLocation);
+            GL.VertexAttribPointer(vTexCoordLocation, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
+        }
+
+        private void GenFrameBuffer()
+        {
+            GL.GenFramebuffers(1, out FBO_ID);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO_ID);
+            GL.GenTextures(1, out fboTexID);
+            GL.BindTexture(TextureTarget.Texture2D, fboTexID);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, 1600, 1200, 0, 
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, fboTexID, 0);
+            GL.GenRenderbuffers(1, out FBO_RBO);
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, FBO_RBO);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, 1600, 1200);
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, 
+                RenderbufferTarget.Renderbuffer, FBO_RBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         private void GenerateEntities()
@@ -245,9 +297,10 @@ namespace Labs.ACW
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO_ID);
+            GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+            GL.Enable(EnableCap.DepthTest);
             GL.UseProgram(shaderIDs[1]);
             for (int i = 0; i < nonTexturedObjects.Count; i++)
             {
@@ -263,6 +316,14 @@ namespace Labs.ACW
                 texturedObjects[i - nonTexturedObjects.Count].Draw();
             }
 
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.Disable(EnableCap.DepthTest);
+            GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.UseProgram(fboShader.ShaderProgramID);
+            GL.BindVertexArray(FBO_VAO);
+            GL.BindTexture(TextureTarget.Texture2D, fboTexID);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
             GL.BindVertexArray(0);
             SwapBuffers();
         }
@@ -298,8 +359,14 @@ namespace Labs.ACW
             for (int i = 0; i < nonTexturedObjects.Count; i++) { nonTexturedObjects[i].Dispose(); }
             for (int i = 0; i < texturedObjects.Count; i++) { texturedObjects[i].Dispose(); }
             GL.DeleteVertexArrays(VAO_IDs.Length, VAO_IDs);
+            GL.DeleteVertexArray(FBO_VAO);
+            GL.DeleteTextures(1, texture_IDs);
+            GL.DeleteTexture(fboTexID);
+            GL.DeleteFramebuffer(FBO_ID);
+            GL.DeleteRenderbuffer(FBO_RBO);
             shader.Delete();
             shader2.Delete();
+            fboShader.Delete();
             base.OnUnload(e);
         }
     }
